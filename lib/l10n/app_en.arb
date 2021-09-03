@@ -1,0 +1,189 @@
+{
+  "loadingStops": "Loading stops...",
+  "@loadingStops": {
+    "description": "First string people see, when stops are loading."
+  },
+  "next": "next {time}",
+  "@next": {
+    "description": "For the timetable, prefix for next arrival ('next 12:30'). Keep it short.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "6 min"
+      }
+    }
+  },
+  "search": "Search...",
+  "@search": {
+    "description": "Placeholder for the search text field."
+  },
+  "whereTo": "Where to?",
+  "@whereTo": {
+    "description": "Title for the page where you choose a destination on a map."
+  },
+  "newDestination": "New Destination",
+  "@newDestination": {
+    "description": "Title for the planned routes list when you chose a destination on a map."
+  },
+  "lookingForRoute": "Looking for a route...",
+  "@lookingForRoute": {
+    "description": "Text displayed when the app is looking for routes to a destination."
+  },
+  "noRoutes": "No routes found, sorry.",
+  "@noRoutes": {
+    "description": "When no routes to a destination found."
+  },
+  "loadingRoute": "Loading the route...",
+  "@loadingRoute": {
+    "description": "Text displayed when loading a specific route."
+  },
+  "errorLoadingRoute": "Error loading route: {message}",
+  "@errorLoadingRoute": {
+    "description": "When loading a route for a route map failed.",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "NullPointerException"
+      }
+    }
+  },
+  "minutes": "{value} min",
+  "@minutes": {
+    "description": "Shorthand for minutes, used like '3 min'.",
+    "placeholders": {
+      "value": {
+        "example": "3"
+      }
+    }
+  },
+  "busLeavesFrom": "{bus} leaves at {time} from {stop}",
+  "@busLeavesFrom": {
+    "description": "Subtitle for a planned route. Used like 'Tram 2 leaves at 11:34 from Balti jaam'.",
+    "placeholders": {
+      "bus": {
+        "type": "String",
+        "example": "Bus 10"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "Hm",
+        "example": "12:34"
+      },
+      "stop": {
+        "type": "String",
+        "example": "Balti jaam"
+      }
+    }
+  },
+  "walkMeters": "Walk {distance} m to <b>{destination}</b> (the yellow circle).",
+  "@walkMeters": {
+    "description": "Itinerary text for walking.",
+    "placeholders": {
+      "distance": {
+        "example": "200"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Balti jaam"
+      }
+    }
+  },
+  "walkDestination": "destination",
+  "@walkDestination": {
+    "description": "Generic name of a destination waypoint."
+  },
+  "stops": "{stops,plural, =1{{stops} stop}, =few{{stops} stops}, =other{{stops} stops}}",
+  "@stops": {
+    "description": "Number of stops for an itinerary text.",
+    "placeholders": {
+      "stops": {}
+    }
+  },
+  "rideStops": "Ride {stops} to <b>{destination}</b>.",
+  "@rideStops": {
+    "description": "Itinerary text for riding a few stops.",
+    "placeholders": {
+      "stops": {
+        "type": "String",
+        "example": "2 stops"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Meistri"
+      }
+    }
+  },
+  "rideTime": "Ride until {arrival} to <b>{destination}</b>.",
+  "@rideTime": {
+    "description": "Itinerary text for riding until a specified time.",
+    "placeholders": {
+      "arrival": {
+        "type": "DateTime",
+        "format": "Hm",
+        "example": "18:44"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Meistri"
+      }
+    }
+  },
+  "noStopsNearby": "No stops nearby",
+  "@noStopsNearby": {
+    "description": "Message on an arrivals panel when there is no active stop."
+  },
+  "addBookmark": "Add Bookmark",
+  "@addBookmark": {
+    "description": "Bookmark screen title."
+  },
+  "bookmarkName": "Bookmark name",
+  "@bookmarkName": {
+    "description": "Hint on the bookmark adding screen."
+  },
+  "deleteBookmark": "Delete bookmark \"{name}\"?",
+  "@deleteBookmark": {
+    "description": "Text on a panel for deleting a bookmark.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Home"
+      }
+    }
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Button text for bookmark deletion."
+  },
+  "bus": "Bus",
+  "@bus": {
+    "description": "Transit mode name."
+  },
+  "trolleybus": "Trolleybus",
+  "@trolleybus": {
+    "description": "Transit mode name."
+  },
+  "tram": "Tram",
+  "@tram": {
+    "description": "Transit mode name."
+  },
+  "subway": "Subway",
+  "@subway": {
+    "description": "Transit mode name."
+  },
+  "train": "Train",
+  "@train": {
+    "description": "Transit mode name."
+  },
+  "ferry": "Ferry",
+  "@ferry": {
+    "description": "Transit mode name."
+  },
+  "regionalBus": "Regional Bus",
+  "@regionalBus": {
+    "description": "Transit mode name."
+  },
+  "commercialBus": "Commercial Bus",
+  "@commercialBus": {
+    "description": "Transit mode name."
+  }
+}
