@@ -14,8 +14,12 @@ class BookmarksController extends StateNotifier<List<Bookmark>> {
 
   _loadBookmarks() async {
     var loaded = await _getSavedBookmarks();
-    if (loaded.isEmpty)
+    if (loaded.isEmpty) {
+      // One-time initializing bookmarks and saving them to the database.
       loaded = getDebugBookmarks();
+      for (var b in loaded)
+        await _addSavedBookmark(b);
+    }
     state = loaded;
   }
 

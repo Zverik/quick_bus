@@ -123,11 +123,11 @@ class _ItineraryLegState extends State<ItineraryLeg> {
     final arrival = this.arrival; // Make a copy to avoid null errors
     if (arrival == null) return;
     final stopList = context.read(stopsProvider);
-    final stop = stopList.resolveStop(arrival.stop);
+    final stop = await stopList.resolveStop(arrival.stop);
     if (stop != null) {
-      await SiriHelper().updateArrivals([stop]);
+      final arrivals = await SiriHelper().getArrivals(stop);
       var properRoute =
-          stop.arrivals.where((element) => element.route == arrival.route);
+          arrivals.where((element) => element.route == arrival.route);
       if (properRoute.isEmpty) return;
       var relevantArrivals = properRoute.where((element) =>
           element.scheduled.difference(arrival.scheduled).abs() <=

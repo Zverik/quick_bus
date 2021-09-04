@@ -1,23 +1,28 @@
-import 'arrival.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:diacritic/diacritic.dart';
+import 'package:proximity_hash/geohash.dart';
+import 'package:proximity_hash/proximity_hash.dart';
+import 'package:quick_bus/constants.dart';
 
 class BusStop {
   final String gtfsId;
   final LatLng location;
   String name; // Can be updated from otherIds.
-  List<Arrival> arrivals;
   String? address;
 
   BusStop({
     required this.gtfsId,
     required this.location,
     required this.name,
-    List<Arrival>? arrivals,
     this.address,
-  }) : this.arrivals = arrivals ?? [];
+  });
 
   String get nameAddress =>
       address == null || address!.isEmpty ? name : '$name ($address)';
+
+  String get normalizedName => normalizeName(name);
+
+  static String normalizeName(String name) => removeDiacritics(name).toLowerCase();
 
   @override
   operator ==(other) => other is BusStop && other.gtfsId == gtfsId;
@@ -32,7 +37,6 @@ class BusStop {
         gtfsId: gtfsId,
         location: location,
         name: name,
-        arrivals: arrivals,
         address: address,
       );
 }
@@ -100,6 +104,14 @@ class SiriBusStop extends BusStop {
       'lat': location.latitude,
       'lon': location.longitude,
       'name': name,
+      'norm_name': normalizedName,
+      'geohash': GeoHasher().encode(
+        location.longitude,
+        location.latitude,
+        precision: kGeohashPrecision,
+      ),
     };
   }
+
+  static const dbColumns = ['gtfsId', 'siriId', 'lat', 'lon', 'name'];
 }

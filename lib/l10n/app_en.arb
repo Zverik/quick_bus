@@ -3,6 +3,10 @@
   "@loadingStops": {
     "description": "First string people see, when stops are loading."
   },
+  "acquiringLocation": "Finding you...",
+  "@acquiringLocation": {
+    "description": "On the loading screen, a message when acquiring geolocation."
+  },
   "next": "next {time}",
   "@next": {
     "description": "For the timetable, prefix for next arrival ('next 12:30'). Keep it short.",
@@ -37,7 +41,7 @@
   "@loadingRoute": {
     "description": "Text displayed when loading a specific route."
   },
-  "errorLoadingRoute": "Error loading route: {message}",
+  "errorLoadingRoute": "Error loading route: {message}.",
   "@errorLoadingRoute": {
     "description": "When loading a route for a route map failed.",
     "placeholders": {
@@ -128,9 +132,13 @@
       }
     }
   },
-  "noStopsNearby": "No stops nearby",
+  "noStopsNearby": "No stops nearby.",
   "@noStopsNearby": {
     "description": "Message on an arrivals panel when there is no active stop."
+  },
+  "noArrivals": "No arrivals today.",
+  "@noArrivals": {
+    "description": "Message on an arrivals panel when the list is empty."
   },
   "addBookmark": "Add Bookmark",
   "@addBookmark": {
@@ -153,6 +161,10 @@
   "delete": "Delete",
   "@delete": {
     "description": "Button text for bookmark deletion."
+  },
+  "enableInternet": "Please turn on network access, otherwise I cannot get route data.",
+  "@enableInternet": {
+    "description": "Shown when both wi-fi and data are off."
   },
   "bus": "Bus",
   "@bus": {

@@ -1,18 +1,18 @@
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:kdtree/kdtree.dart';
+import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/helpers/database.dart';
 import 'package:quick_bus/models/bus_stop.dart';
-import 'package:quick_bus/models/location.dart';
-import 'package:diacritic/diacritic.dart';
+import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:proximity_hash/proximity_hash.dart';
+import 'package:sqflite/utils/utils.dart';
 
 final stopsProvider = Provider((ref) => StopList._());
 
@@ -21,116 +21,142 @@ class StopsDownloadError extends Error {
   StopsDownloadError(this.message);
 }
 
+class CachedNearestStops {
+  static const PRECISION = 1e4; // ~11 m
+  static final dummy = CachedNearestStops(LatLng(0.0, 0.0), 0, []);
+
+  final int _latitude;
+  final int _longitude;
+  final int distance;
+  final List<BusStop> stops;
+
+  CachedNearestStops(LatLng around, this.distance, this.stops)
+      : _latitude = (around.latitude * PRECISION).round(),
+        _longitude = (around.longitude * PRECISION).round();
+
+  bool isSame(LatLng around, int distance) {
+    return this.distance == distance &&
+        _latitude == (around.latitude * PRECISION).round() &&
+        _longitude == (around.longitude * PRECISION).round();
+  }
+}
+
 class StopList {
-  Map<String, BusStop> _stops = {};
-  KDTree? _tree;
+  CachedNearestStops cachedNearest = CachedNearestStops.dummy;
 
   // Disallowing instantiating this class elsewhere.
   StopList._();
 
   Future loadBusStops() async {
-    var stops = await _getStopsFromDatabase();
-    if (stops.isEmpty) {
-      print('No stops in the database, reading from file.');
-      final data = await rootBundle.loadString('assets/stops.txt');
-      stops = _parseStopCSV(data);
+    final firstStopRun = await _needPopulateStops();
+    if (firstStopRun) {
+      await _updateStopsInDatabase(force: true, fallbackToAsset: true);
+    } else {
+      // Start background downloading of new stops if needed
+      _updateStopsInDatabase();
     }
-    _updateStopTree(stops);
-    // Start background downloading of new stops if needed
-    _updateStopsInDatabase();
   }
 
-  List<BusStop> findNearestStops(LatLng location,
-      {int count = 3, double maxDistance = 500.0}) {
-    if (_tree == null) return [];
-    var nearest = _tree!.nearest(_makeKDPoint(location), count);
+  Future<List<BusStop>> findNearestStops(LatLng location,
+      {int count = 3, int maxDistance = 500}) async {
+    if (cachedNearest.isSame(location, maxDistance)) return cachedNearest.stops;
+
+    final db = await DatabaseHelper.db.database;
+    final geohashes = createGeohashes(
+      location.latitude,
+      location.longitude,
+      maxDistance.toDouble(),
+      kGeohashPrecision,
+    );
+    final placeholders =
+        List.generate(geohashes.length, (index) => "?").join(",");
+    final results = await db.query(
+      DatabaseHelper.STOPS,
+      columns: SiriBusStop.dbColumns,
+      where: 'geohash in ($placeholders)',
+      whereArgs: geohashes,
+    );
+
     final distance = DistanceEquirectangular();
-    return <BusStop>[for (List v in nearest) v[0]['stop']]
+    final stops = results
+        .map((row) => SiriBusStop.fromJson(row))
         .where((stop) => distance(location, stop.location) <= maxDistance)
         .toList();
+    stops.sort((a, b) => distance(location, a.location)
+        .compareTo(distance(location, b.location)));
+    cachedNearest = CachedNearestStops(location, maxDistance, stops);
+    return stops;
   }
 
-  BusStop? resolveStop(BusStop template) {
-    if (_tree == null) return null;
-    var nearest = _tree!.nearest(_makeKDPoint(template.location), 3);
-    if (nearest.isEmpty) return null;
-    List<BusStop> stops = nearest.map((e) => e[0]['stop'] as BusStop).toList();
-    final distance = DistanceEquirectangular();
-    stops.sort((a, b) => distance(template.location, a.location)
-        .compareTo(distance(template.location, b.location)));
-    return stops.firstWhere((stop) => stop.name == template.name);
+  Future<BusStop?> resolveStop(BusStop template) async {
+    final stops =
+        await findNearestStops(template.location, count: 3, maxDistance: 100);
+    if (stops.isEmpty) return null;
+    try {
+      return stops.firstWhere((stop) => stop.name == template.name);
+    } on StateError {
+      // No stop with the given name.
+      return null;
+    }
   }
 
-  List<BusStop> findStopsByName(String part,
-      {LatLng? around, int max = 3, bool deduplicate = false}) {
-    part = _normalize(part);
-    List<BusStop> stops = _stops.values
-        .where(
-            (stop) => _normalize(stop.name).contains(part))
-        .toList();
+  Future<List<BusStop>> findStopsByName(String part,
+      {LatLng? around, int max = 3, bool deduplicate = false}) async {
+    part = BusStop.normalizeName(part);
+    final db = await DatabaseHelper.db.database;
+    final results = await db.query(
+      DatabaseHelper.STOPS,
+      columns: SiriBusStop.dbColumns,
+      where: 'norm_name like ?',
+      whereArgs: ['%$part%'],
+    );
+    final stops = [for (var row in results) SiriBusStop.fromJson(row)];
+
     if (around != null) {
       final distance = DistanceEquirectangular();
       stops.sort((a, b) =>
           distance(around, a.location).compareTo(distance(around, b.location)));
     }
+
     if (deduplicate) {
       // Code from https://stackoverflow.com/a/63277386
       final names = Set();
       stops.retainWhere((element) => names.add(element.name));
     }
+
     // Put stops with names that start with part first.
     mergeSort(stops, compare: (BusStop a, BusStop b) {
-      final hasPrefixA = _normalize(a.name).startsWith(part);
-      final hasPrefixB = _normalize(b.name).startsWith(part);
+      final hasPrefixA = a.normalizedName.startsWith(part);
+      final hasPrefixB = b.normalizedName.startsWith(part);
       if (hasPrefixA == hasPrefixB) return 0;
       return hasPrefixA ? -1 : 1;
     });
-    if (stops.length > max) stops = stops.sublist(0, max);
-    return stops;
+    return stops.length <= max ? stops : stops.sublist(0, max);
   }
 
   // Private methods down below /////////////////////////////////////////////
 
-  String _normalize(String name) => removeDiacritics(name).toLowerCase();
-
-  Map<String, dynamic> _makeKDPoint(LatLng location) {
-    return {
-      'y': location.latitudeInRad,
-      'x': location.longitudeInRad * math.cos(location.latitudeInRad / 2),
-    };
-  }
-
-  _updateStopTree(List<BusStop> stops) {
-    List<Map<String, dynamic>> treePoints = [
-      for (var stop in stops)
-        {
-          ..._makeKDPoint(stop.location),
-          'stop': stop,
-        }
-    ];
-    var rectDistance =
-        (a, b) => math.pow(a['x'] - b['x'], 2) + math.pow(a['y'] - b['y'], 2);
-    _tree = KDTree(treePoints, rectDistance, ['x', 'y']);
-    _stops = {for (var stop in stops) stop.gtfsId: stop};
-  }
-
-  Future _updateStopsInDatabase() async {
+  Future _updateStopsInDatabase(
+      {bool force = false, bool fallbackToAsset = false}) async {
     const STOPS_UPDATE_TIMESTAMP = 'stops_update_timestamp';
     final preferences = await SharedPreferences.getInstance();
     final lastDownloadDate = preferences.getInt(STOPS_UPDATE_TIMESTAMP);
     if (lastDownloadDate == null ||
+        force ||
         DateTime.fromMillisecondsSinceEpoch(lastDownloadDate)
             .add(Duration(days: 1))
             .isBefore(DateTime.now())) {
       // Stops got old
-      final stops;
+      List<SiriBusStop> stops;
       try {
         stops = await _downloadStops();
       } on StopsDownloadError catch (e) {
         print('Error downloading stops: ${e.message}');
-        return;
+        if (fallbackToAsset) {
+          stops = await _loadStopsFromAsset();
+        } else
+          return;
       }
-      _updateStopTree(stops);
       await _uploadStopsToDatabase(stops);
       await preferences.setInt(
           STOPS_UPDATE_TIMESTAMP, DateTime.now().millisecondsSinceEpoch);
@@ -149,13 +175,11 @@ class StopList {
     });
   }
 
-  Future<List<SiriBusStop>> _getStopsFromDatabase() async {
+  Future<bool> _needPopulateStops() async {
     final db = await DatabaseHelper.db.database;
-    final result = await db.query(
-      DatabaseHelper.STOPS,
-      columns: ['gtfsId', 'siriId', 'lat', 'lon', 'name'],
-    );
-    return [for (var stop in result) SiriBusStop.fromJson(stop)];
+    final rowCount = firstIntValue(
+        await db.rawQuery("select count(*) from ${DatabaseHelper.STOPS}"));
+    return rowCount == null || rowCount < kMinimumStopCount;
   }
 
   List<SiriBusStop> _parseStopCSV(String data) {
@@ -184,9 +208,14 @@ class StopList {
       throw StopsDownloadError('Failed to load stops: ${response.statusCode}');
     }
     final result = _parseStopCSV(utf8.decode(response.bodyBytes));
-    if (result.length < 100)
+    if (result.length < kMinimumStopCount)
       throw StopsDownloadError(
           'Got only ${result.length} stops, must be an error.');
     return result;
+  }
+
+  Future<List<SiriBusStop>> _loadStopsFromAsset() async {
+    final data = await rootBundle.loadString('assets/stops.txt');
+    return _parseStopCSV(data);
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +33,9 @@ class _StopMapState extends State<StopMap> {
   late final StreamSubscription<MapEvent> mapSub;
   late final StreamSubscription<Position> locSub;
   LatLng? trackLocation;
+  List<LatLng> nearestStops = [];
+  LatLng? lastNearestStopCheck;
+  static const kNearestStopUpdateThreshold = 100.0; // meters
 
   @override
   void initState() {
@@ -39,16 +43,17 @@ class _StopMapState extends State<StopMap> {
     mapController = MapController();
     mapSub = mapController.mapEventStream.listen(onMapEvent);
     locSub = Geolocator.getPositionStream(
-      intervalDuration: Duration(seconds: 1),
-      desiredAccuracy: LocationAccuracy.best,
-    ).listen(onLocationEvent);
+      intervalDuration: Duration(seconds: 3),
+      desiredAccuracy: LocationAccuracy.high,
+    ).listen(onLocationEvent, onError: onLocationError, cancelOnError: true);
   }
 
   void onMapEvent(MapEvent event) {
-    if (event is MapEventMove &&
-        widget.onDrag != null &&
-        event.source != MapEventSource.mapController)
-      widget.onDrag!(mapController.center);
+    if (event is MapEventMove) {
+      updateNearestStops(context, event.targetCenter);
+      if (widget.onDrag != null && event.source != MapEventSource.mapController)
+        widget.onDrag!(event.targetCenter);
+    }
   }
 
   void onLocationEvent(Position pos) {
@@ -64,6 +69,11 @@ class _StopMapState extends State<StopMap> {
     }
   }
 
+  onLocationError(event) {
+    print('Location stream error.');
+    // TODO: Now click on the "track location" icon should resume geolocation.
+  }
+
   @override
   void dispose() {
     mapSub.cancel();
@@ -71,9 +81,24 @@ class _StopMapState extends State<StopMap> {
     super.dispose();
   }
 
+  updateNearestStops(BuildContext context, LatLng around) {
+    final distance = DistanceEquirectangular();
+    if (lastNearestStopCheck != null &&
+        distance(lastNearestStopCheck!, around) <
+            kNearestStopUpdateThreshold) return;
+    lastNearestStopCheck = widget.location;
+
+    final stopList = context.read(stopsProvider);
+    stopList.findNearestStops(around, count: 10).then((stops) {
+      setState(() {
+        nearestStops =
+            stops.map((stop) => stop.location).toList(growable: false);
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final stopList = context.read(stopsProvider);
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
@@ -96,9 +121,8 @@ class _StopMapState extends State<StopMap> {
                 color: Colors.blue.withAlpha(150),
                 radius: 20.0,
               ),
-            for (var stop
-                in stopList.findNearestStops(widget.location, count: 10))
-              StopWithLabelOptions.getCircleMarker(stop.location),
+            for (var stop in nearestStops)
+              StopWithLabelOptions.getCircleMarker(stop),
           ],
         ),
         if (widget.chosenStop != null)

@@ -1,4 +1,5 @@
 import 'dart:convert' show utf8, jsonDecode;
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:quick_bus/models/arrival.dart';
@@ -62,12 +63,19 @@ class RouteQuery {
 
   Future<List<List<RouteElement>>> getRouteOptions(
       LatLng from, LatLng to) async {
+    final timeFormat = DateFormat('HH:mm:ss');
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    final planBeforeDate = DateTime.now().subtract(kPlanBefore);
     var params = <String, String>{
       'fromPlace': '${from.latitude},${from.longitude}',
       'toPlace': '${to.latitude},${to.longitude}',
       'mode': 'TRANSIT,WALK',
       'maxWalkDistance': '500',
       'showIntermediateStops': 'true',
+      if (kPlanBefore.inSeconds > 0) ...{
+        'time': timeFormat.format(planBeforeDate),
+        'date': dateFormat.format(planBeforeDate),
+      }
     };
     dynamic data;
     try {
@@ -196,19 +204,18 @@ class RouteQuery {
     );
   }
 
-  Future updateArrivals(BusStop stop) async {
-    if (stop.arrivals.isNotEmpty)
-      stop.arrivals = [];
+  Future<List<Arrival>> getArrivals(BusStop stop) async {
     String stopId;
     try {
       stopId = await findBusStopId(stop);
     } on StopNotFoundError {
-      return;
+      return [];
     }
     List<dynamic> data =
         await performOTPQuery('index/stops/$stopId/stoptimes', {
       'timeRange': '3600', // an hour
     });
+    List<Arrival> arrivals = [];
     for (Map<String, dynamic> entry in data) {
       String routeId = entry['pattern']['routeId'];
       // TODO: get route from database by otpId
@@ -216,13 +223,14 @@ class RouteQuery {
       for (Map<String, dynamic> time in entry['times']) {
         var scheduled = Arrival.secondsToDateTime(time['scheduledDeparture']);
         route.headsign = time['headsign'] ?? route.headsign;
-        stop.arrivals.add(Arrival(
+        arrivals.add(Arrival(
           route: route,
           stop: stop,
           scheduled: scheduled,
         ));
       }
     }
-    stop.arrivals.sort((a, b) => a.arrivesInSec.compareTo(b.arrivesInSec));
+    arrivals.sort((a, b) => a.arrivesInSec.compareTo(b.arrivesInSec));
+    return arrivals;
   }
 }

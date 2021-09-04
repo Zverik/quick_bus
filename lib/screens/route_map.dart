@@ -4,7 +4,7 @@ import 'package:quick_bus/helpers/route_query.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:quick_bus/models/location.dart';
+import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_gen/gen_l10n/l10n.dart';

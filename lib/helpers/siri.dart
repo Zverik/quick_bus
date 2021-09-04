@@ -9,24 +9,23 @@ class SiriDownloadError extends Error {
 }
 
 class SiriHelper {
-  Future updateArrivals(List<BusStop> stops) async {
-    if (stops.isEmpty) return;
-    for (var stop in stops) stop.arrivals.clear();
-
+  Future<List<Arrival>> getArrivals(BusStop stop) async {
+    if (!(stop is SiriBusStop))
+      throw SiriDownloadError('Stop does not have siriId: ${stop.name}');
     // http://transport.tallinn.ee/siri-stop-departures.php?stopid=1079,1080,1081&time=1390219197288
     var currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
-    var stopId = stops.map((stop) => (stop as SiriBusStop).siriId).join(',');
     var response = await http.get(Uri.https(
         'transport.tallinn.ee',
         '/siri-stop-departures.php',
-        {'stopid': stopId, 'time': currentTime.toString()}));
+        {'stopid': stop.siriId, 'time': currentTime.toString()}));
 
     if (response.statusCode == 200) {
       final parser = CsvToListConverter(
         eol: '\n',
         shouldParseNumbers: false,
       );
-      BusStop? currentStop;
+      List<Arrival> arrivals = [];
+      bool currentStop = false;
       int? currentTimeSeconds;
       var data = parser.convert(response.body);
       for (var row in data) {
@@ -35,23 +34,22 @@ class SiriHelper {
           currentTimeSeconds = int.parse(row[4]);
         } else if (row[0] == 'stop') {
           // Change current stop
-          try {
-            currentStop = stops
-                .singleWhere((stop) => (stop as SiriBusStop).siriId == row[1]);
-            currentStop.arrivals.clear();
-          } on StateError {
+          if (stop.siriId == row[1])
+            currentStop = true;
+          else {
             print('Error: missing stop ${row[1]}.');
-            currentStop = null;
+            currentStop = false;
           }
-        } else if (currentStop != null) {
+        } else if (currentStop) {
           // Arrival line possibly
           if (Arrival.validate(row)) {
-            var arrival = Arrival.fromList(currentStop, row,
+            var arrival = Arrival.fromList(stop, row,
                 baseSeconds: currentTimeSeconds);
-            currentStop.arrivals.add(arrival);
+            arrivals.add(arrival);
           }
         }
       }
+      return arrivals;
     } else {
       throw SiriDownloadError(
           'Failed to load schedule: ${response.statusCode}');

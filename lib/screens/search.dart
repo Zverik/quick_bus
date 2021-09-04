@@ -55,17 +55,23 @@ class _SearchPageState extends State<SearchPage> {
           location: dest.destination,
         ));
       }
-    } else {
+    } else if (query.length >= 2) {
       final stopList = watch(stopsProvider);
-      final stops = stopList.findStopsByName(query,
-          around: widget.start, deduplicate: true);
-      for (var stop in stops) {
-        results.add(SearchResult(
-          icon: Icons.directions_bus,
-          title: stop.name,
-          location: stop.location,
-        ));
-      }
+      stopList
+          .findStopsByName(query, around: widget.start, deduplicate: true)
+          .then((stops) {
+        if (mounted) {
+          setState(() {
+            for (var stop in stops) {
+              results.add(SearchResult(
+                icon: Icons.directions_bus,
+                title: stop.name,
+                location: stop.location,
+              ));
+            }
+          });
+        }
+      });
     }
     return results;
   }

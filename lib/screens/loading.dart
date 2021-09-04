@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:quick_bus/constants.dart';
-import 'package:quick_bus/models/location.dart';
+import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/screens/monitor.dart';
 import 'package:latlong2/latlong.dart';
@@ -13,19 +16,41 @@ class LoadingPage extends StatefulWidget {
 }
 
 class _LoadingPageState extends State<LoadingPage> {
-  Future<LatLng> getFirstLocation() async {
+  String? message;
+
+  Future<LatLng?> getFirstLocation() async {
     // TODO: check for permissions
-    return await Location.getCurrentLocation();
+    try {
+      final loc = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: Duration(seconds: 5),
+      );
+      return LatLng(loc.latitude, loc.longitude);
+    } on TimeoutException {
+      // ?
+    } on LocationServiceDisabledException {
+      // ?
+    } on PermissionDeniedException {
+      // ?
+    }
   }
 
   Future doInit() async {
     // So that we can use context
     await Future.delayed(Duration.zero);
-    final stopList = context.read(stopsProvider);
+
     // First load all bus stops.
+    setState(() {
+      message = AppLocalizations.of(context)?.loadingStops;
+    });
+    final stopList = context.read(stopsProvider);
     await stopList.loadBusStops();
+
     // Then acquire user location.
-    var location = await getFirstLocation();
+    setState(() {
+      message = AppLocalizations.of(context)?.acquiringLocation;
+    });
+    LatLng? location = await getFirstLocation();
     // Finally switch to the monitor page.
     Navigator.pushReplacement(
       context,
@@ -55,7 +80,7 @@ class _LoadingPageState extends State<LoadingPage> {
             ),
             SizedBox(height: 40.0),
             Text(
-              AppLocalizations.of(context)?.loadingStops ?? 'Loading stops...',
+              message ?? 'Initializing...',
               style: TextStyle(fontSize: 20.0),
             ),
           ],

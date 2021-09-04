@@ -15,14 +15,14 @@ class ArrivalDisplayedItem {
 }
 
 class ArrivalsList extends StatelessWidget {
-  final BusStop? stop;
+  final List<Arrival> arrivals;
 
-  ArrivalsList({required this.stop});
+  ArrivalsList(this.arrivals);
 
   List<ArrivalDisplayedItem> sortArrivals() {
-    if (stop == null) return [];
+    if (arrivals.isEmpty) return [];
     var byRoute = <TransitRoute, ArrivalDisplayedItem>{};
-    for (var arrival in stop!.arrivals) {
+    for (var arrival in arrivals) {
       if (!byRoute.containsKey(arrival.route))
         byRoute[arrival.route] = ArrivalDisplayedItem(arrival);
       else {
@@ -30,24 +30,22 @@ class ArrivalsList extends StatelessWidget {
         if (!item.hasSecond) item.second = arrival;
       }
     }
-    var arrivals = byRoute.values.toList();
-    arrivals.sort((a, b) => a.first.expected.compareTo(b.first.expected));
-    return arrivals;
+    var fixedArrivals = byRoute.values.toList();
+    fixedArrivals.sort((a, b) => a.first.expected.compareTo(b.first.expected));
+    return fixedArrivals;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (stop == null) {
-      return Container(
-        child: Text(AppLocalizations.of(context)!.noStopsNearby),
-      );
+    if (arrivals.isEmpty) {
+      return Center(child: CircularProgressIndicator());
     }
 
-    final arrivals = sortArrivals();
+    final arrivalItems = sortArrivals();
     return ListView.separated(
-      itemCount: arrivals.length,
+      itemCount: arrivalItems.length,
       itemBuilder: (context, index) {
-        var arrival = arrivals[index];
+        var arrival = arrivalItems[index];
         return GestureDetector(
           onTap: () {
             Navigator.push(

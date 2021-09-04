@@ -22,7 +22,7 @@ class DatabaseHelper {
   Future<Database> createDatabase() async {
     return await openDatabase(
       kDatabaseName,
-      version: 2,
+      version: 3,
       onCreate: initDatabase,
       onUpgrade: upgradeDatabase,
     );
@@ -34,7 +34,7 @@ class DatabaseHelper {
         "create table $BOOKMARKS (id integer primary key, lat real, lon real, name text, emoji text, created integer)");
     // For caching stops with siriId.
     await database.execute(
-        "create table $STOPS (gtfsId text, siriId text, lat real, lon real, name text)");
+        "create table $STOPS (gtfsId text, siriId text, lat real, lon real, geohash text, name text, norm_name text)");
     // For caching OTP routes.
     await database.execute(
         "create table $ROUTES (otp_id text, number text, mode text, headsign text)");
@@ -49,6 +49,9 @@ class DatabaseHelper {
       await database.execute(
           "create table $QUERIES (query text, last_used integer)");
     }
+    if (version >= 3) {
+      await database.execute("create index stops_geohash on $STOPS (geohash)");
+    }
   }
 
   void upgradeDatabase(
@@ -57,6 +60,12 @@ class DatabaseHelper {
     if (newVersion >= 2 && oldVersion < 2) {
       await database.execute("alter table $BOOKMARKS add emoji text");
       await database.execute("create table $QUERIES (query text, last_used integer)");
+    }
+    if (newVersion >= 3 && oldVersion < 3) {
+      await database.execute("alter table $STOPS add geohash text");
+      await database.execute("alter table $STOPS add norm_name text");
+      await database.delete(STOPS);
+      await database.execute("create index stops_geohash on $STOPS (geohash)");
     }
   }
 }
