@@ -9,13 +9,13 @@ class BookmarkRow extends StatelessWidget {
   final List<Bookmark> bookmarks;
   final LatLng location;
   final bookmarkScrollController = ScrollController();
+  final bool isPortrait;
 
-  BookmarkRow(this.location, this.bookmarks);
+  BookmarkRow(this.location, this.bookmarks, {Orientation? orientation})
+      : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
     final bookmarkIcons = <Widget>[
       for (var bookmark in bookmarks)
         TextButton(
@@ -43,10 +43,13 @@ class BookmarkRow extends StatelessWidget {
       Expanded(
         flex: 100,
         child: FadingEdgeScrollView.fromSingleChildScrollView(
+          shouldDisposeScrollController: true,
           child: SingleChildScrollView(
             controller: bookmarkScrollController,
             scrollDirection: isPortrait ? Axis.horizontal : Axis.vertical,
-            child: isPortrait ? Row(children: bookmarkIcons) : Column(children: bookmarkIcons),
+            child: isPortrait
+                ? Row(children: bookmarkIcons)
+                : Column(children: bookmarkIcons),
           ),
         ),
       ),
@@ -66,7 +69,9 @@ class BookmarkRow extends StatelessWidget {
     return Container(
       // color: Theme.of(context).colorScheme.primary,
       color: Colors.grey.shade300,
-      child: isPortrait ? Row(children: children) : Column(children: children),
+      child: Flex(
+          direction: isPortrait ? Axis.horizontal : Axis.vertical,
+          children: children),
     );
   }
 }

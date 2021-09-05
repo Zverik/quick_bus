@@ -96,7 +96,7 @@ class _MonitorPageState extends State<MonitorPage> {
       updateArrivals(nextStop);
     });
   }
-  
+
   updateNearestStops(BuildContext context) {
     locationToUpdateForNearest = location;
     if (nearestStopTimer != null) return;
@@ -173,7 +173,7 @@ class _MonitorPageState extends State<MonitorPage> {
             Consumer(
               builder: (context, watch, child) {
                 final bookmarks = watch(bookmarkProvider);
-                return BookmarkRow(location, bookmarks);
+                return BookmarkRow(location, bookmarks, orientation: orientation);
               },
             ),
             Expanded(
@@ -194,6 +194,12 @@ class _MonitorPageState extends State<MonitorPage> {
             ),
           ];
 
+          return Flex(
+            direction: orientation == Orientation.portrait
+                ? Axis.vertical
+                : Axis.horizontal,
+            children: children,
+          );
           return orientation == Orientation.portrait
               ? Column(children: children)
               : Row(children: children);

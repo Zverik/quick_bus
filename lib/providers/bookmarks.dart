@@ -13,14 +13,7 @@ class BookmarksController extends StateNotifier<List<Bookmark>> {
   }
 
   _loadBookmarks() async {
-    var loaded = await _getSavedBookmarks();
-    if (loaded.isEmpty) {
-      // One-time initializing bookmarks and saving them to the database.
-      loaded = getDebugBookmarks();
-      for (var b in loaded)
-        await _addSavedBookmark(b);
-    }
-    state = loaded;
+    state = await _getSavedBookmarks();
   }
 
   removeBookmark(Bookmark bookmark) {
@@ -33,26 +26,6 @@ class BookmarksController extends StateNotifier<List<Bookmark>> {
     state = [...state, bookmark];
     // This sets the "id" field of the bookmark.
     _addSavedBookmark(bookmark);
-  }
-
-  List<Bookmark> getDebugBookmarks() {
-    return [
-      Bookmark(
-        name: 'Домой',
-        location: LatLng(59.4194, 24.6421),
-        emoji: '🏠',
-      ),
-      Bookmark(
-        name: 'Школа',
-        location: LatLng(59.4422, 24.7108),
-        emoji: '🎒',
-      ),
-      Bookmark(
-        name: 'Футбол',
-        location: LatLng(59.4434, 24.7491),
-        emoji: '⚽',
-      ),
-    ];
   }
 
   Future<List<Bookmark>> _getSavedBookmarks() async {

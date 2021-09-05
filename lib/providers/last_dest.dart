@@ -4,32 +4,39 @@ import 'package:latlong2/latlong.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 import 'package:quick_bus/helpers/database.dart';
 import 'package:quick_bus/constants.dart';
+import 'dart:math' show Random;
 
 final lastDestinationsProvider =
     StateNotifierProvider<LastDestinations, List<StoredDestination>>(
         (_) => LastDestinations());
 
 class StoredDestination {
+  int id;
   final LatLng destination;
   String name;
   DateTime accessedOn;
   DateTime createdOn;
+  static const MAX_INTEGER = 2000000000;
 
-  StoredDestination(this.destination, {String? name, DateTime? accessedOn})
+  StoredDestination(this.destination,
+      {String? name, DateTime? accessedOn, int? id})
       : this.name = name ?? "${destination.round(decimals: 5)}",
         this.accessedOn = accessedOn ?? DateTime.now(),
-        createdOn = DateTime.now();
+        createdOn = DateTime.now(),
+        this.id = id ?? Random().nextInt(MAX_INTEGER);
 
   factory StoredDestination.fromJson(Map<String, dynamic> json) {
     return StoredDestination(
       LatLng(json['lat'], json['lon']),
       name: json['name'],
       accessedOn: DateTime.fromMillisecondsSinceEpoch(json['last_used']),
+      id: json['id'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'lat': destination.latitude,
       'lon': destination.longitude,
       'name': name,
@@ -64,7 +71,7 @@ class LastDestinations extends StateNotifier<List<StoredDestination>> {
     dest.accessedOn = DateTime.now();
     _updateDestination(dest);
     var newList = state.toList();
-    newList.sort((a, b) => a.accessedOn.compareTo(b.accessedOn));
+    newList.sort((a, b) => b.accessedOn.compareTo(a.accessedOn));
     if (!listEquals(newList, state)) state = newList;
   }
 
@@ -77,15 +84,18 @@ class LastDestinations extends StateNotifier<List<StoredDestination>> {
     );
     dest.name = result.displayName;
     state = state;
+    _updateDestination(dest);
   }
 
   _loadDestinations() async {
     final db = await DatabaseHelper.db.database;
     final results = await db.query(
       DatabaseHelper.DESTINATIONS,
-      columns: ['lat', 'lon', 'name', 'last_used'],
+      columns: ['id', 'lat', 'lon', 'name', 'last_used'],
     );
-    state = [for (var d in results) StoredDestination.fromJson(d)];
+    final dest = [for (var d in results) StoredDestination.fromJson(d)];
+    dest.sort((a, b) => b.accessedOn.compareTo(a.accessedOn));
+    state = dest;
   }
 
   _addDestination(StoredDestination dest) async {
@@ -98,8 +108,8 @@ class LastDestinations extends StateNotifier<List<StoredDestination>> {
     await db.update(
       DatabaseHelper.DESTINATIONS,
       dest.toJson(),
-      where: 'name = ?',
-      whereArgs: [dest.name],
+      where: 'id = ?',
+      whereArgs: [dest.id],
     );
   }
 

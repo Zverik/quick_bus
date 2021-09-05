@@ -35,14 +35,17 @@ class SearchResult {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  List<SearchResult> results = [];
   List<SearchResult> geocoderResults = [];
   String query = '';
+  String lastQuerySearchedForStops = '';
   final controller = TextEditingController();
   Timer? geocodeTimer;
 
   List<SearchResult> updateResults(ScopedReader watch, String query) {
-    List<SearchResult> results = [];
     if (query.isEmpty) {
+      lastQuerySearchedForStops = query;
+      results = [];
       final searchHistory = watch(searchHistoryProvider);
       for (var entry in searchHistory) {
         results.add(SearchResult(icon: Icons.history, title: entry.query));
@@ -55,23 +58,30 @@ class _SearchPageState extends State<SearchPage> {
           location: dest.destination,
         ));
       }
-    } else if (query.length >= 2) {
-      final stopList = watch(stopsProvider);
-      stopList
-          .findStopsByName(query, around: widget.start, deduplicate: true)
-          .then((stops) {
-        if (mounted) {
-          setState(() {
-            for (var stop in stops) {
-              results.add(SearchResult(
-                icon: Icons.directions_bus,
-                title: stop.name,
-                location: stop.location,
-              ));
-            }
-          });
-        }
-      });
+    } else {
+      if (query.length < 2) {
+        lastQuerySearchedForStops = query;
+        results = [];
+      } else if (query != lastQuerySearchedForStops) {
+        lastQuerySearchedForStops = query;
+        final stopList = watch(stopsProvider);
+        stopList
+            .findStopsByName(query, around: widget.start, deduplicate: true)
+            .then((stops) {
+          if (mounted) {
+            setState(() {
+              results = [];
+              for (var stop in stops) {
+                results.add(SearchResult(
+                  icon: Icons.directions_bus,
+                  title: stop.name,
+                  location: stop.location,
+                ));
+              }
+            });
+          }
+        });
+      }
     }
     return results;
   }
@@ -174,7 +184,7 @@ class _SearchPageState extends State<SearchPage> {
       body: SafeArea(
         child: Consumer(
           builder: (context, watch, child) {
-            final results = updateResults(watch, query);
+            updateResults(watch, query);
             return ListView.separated(
               itemCount: results.length + geocoderResults.length,
               separatorBuilder: (context, index) => Divider(),

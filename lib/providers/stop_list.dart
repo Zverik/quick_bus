@@ -126,8 +126,8 @@ class StopList {
 
     // Put stops with names that start with part first.
     mergeSort(stops, compare: (BusStop a, BusStop b) {
-      final hasPrefixA = a.normalizedName.startsWith(part);
-      final hasPrefixB = b.normalizedName.startsWith(part);
+      final hasPrefixA = a.normalizedName.split(' ').any((element) => element.startsWith(part));
+      final hasPrefixB = b.normalizedName.split(' ').any((element) => element.startsWith(part));
       if (hasPrefixA == hasPrefixB) return 0;
       return hasPrefixA ? -1 : 1;
     });

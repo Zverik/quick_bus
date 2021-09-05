@@ -22,7 +22,7 @@ class DatabaseHelper {
   Future<Database> createDatabase() async {
     return await openDatabase(
       kDatabaseName,
-      version: 3,
+      version: 4,
       onCreate: initDatabase,
       onUpgrade: upgradeDatabase,
     );
@@ -40,7 +40,7 @@ class DatabaseHelper {
         "create table $ROUTES (otp_id text, number text, mode text, headsign text)");
     // Last searches
     await database.execute(
-        "create table $DESTINATIONS (lat real, lon real, name text, last_used integer)");
+        "create table $DESTINATIONS (id integer primary key, lat real, lon real, name text, last_used integer)");
     // Bookmarked route plan
     await database
         .execute("create table $PLANS (itinerary text, arrival_on integer)");
@@ -66,6 +66,9 @@ class DatabaseHelper {
       await database.execute("alter table $STOPS add norm_name text");
       await database.delete(STOPS);
       await database.execute("create index stops_geohash on $STOPS (geohash)");
+    }
+    if (newVersion >= 4 && oldVersion < 4) {
+      await database.execute("alter table $DESTINATIONS add id integer");
     }
   }
 }

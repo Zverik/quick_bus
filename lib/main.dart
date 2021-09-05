@@ -25,7 +25,7 @@ class QuickBusApp extends StatelessWidget {
       ],
       supportedLocales: [
         Locale('en', 'US'),
-        Locale('ee'),
+        Locale('et'),
         Locale('ru'),
       ],
       home: LoadingPage(),

@@ -30,6 +30,7 @@ class ArrivalRow extends StatelessWidget {
         Expanded(
           flex: 100,
           child: FadingEdgeScrollView.fromSingleChildScrollView(
+            shouldDisposeScrollController: true,
             child: SingleChildScrollView(
               controller: scrollController,
               scrollDirection: Axis.horizontal,
