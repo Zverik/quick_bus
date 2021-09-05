@@ -39,7 +39,6 @@ class SavedPlanController extends StateNotifier<SavedPlan> {
   }
 
   void setPlan(List<RouteElement> plan) {
-    print('Updating plan');
     state = SavedPlan(plan);
     _saveItinerary(plan);
   }
@@ -54,7 +53,6 @@ class SavedPlanController extends StateNotifier<SavedPlan> {
       await db.delete(DatabaseHelper.PLANS);
       return;
     }
-    print('Saving non-empty plan');
     Map<String, dynamic> data = {
       'itinerary': jsonEncode([for (var i in itinerary) i.toJson()]),
       'arrival_on': itinerary.last.arrival.millisecondsSinceEpoch,
@@ -68,12 +66,6 @@ class SavedPlanController extends StateNotifier<SavedPlan> {
     var result = await db
         .query(DatabaseHelper.PLANS, columns: ['arrival_on', 'itinerary']);
     if (result.isEmpty) return null;
-    // var arrival = DateTime.fromMillisecondsSinceEpoch(result.first['arrival_on'] as int);
-    // if (arrival.isBefore(DateTime.now())) {
-    //   await db.delete(PLANS);
-    //   return null;
-    // }
-    print('Loading non-empty plan');
     var data = jsonDecode(result.first['itinerary'] as String);
     return [for (var element in data as List) RouteElement.fromJson(element)];
   }
