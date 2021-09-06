@@ -18,6 +18,7 @@
   "rideTime": "Sõida kuni kella {arrival} <b>{destination}</b>.",
   "noStopsNearby": "Läheduses pole ühtegi peatust.",
   "noArrivals": "Täna pole saabujaid.",
+  "arrivalsError": "Saabumise ajakava ei saanud värskendada.",
   "addBookmark": "Lisage järjehoidja",
   "bookmarkName": "Järjehoidja nimi",
   "deleteBookmark": "Kas kustutada järjehoidja \"{name}\"?",

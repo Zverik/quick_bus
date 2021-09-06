@@ -34,12 +34,7 @@ class SiriHelper {
           currentTimeSeconds = int.parse(row[4]);
         } else if (row[0] == 'stop') {
           // Change current stop
-          if (stop.siriId == row[1])
-            currentStop = true;
-          else {
-            print('Error: missing stop ${row[1]}.');
-            currentStop = false;
-          }
+          currentStop = stop.siriId == row[1];
         } else if (currentStop) {
           // Arrival line possibly
           if (Arrival.validate(row)) {

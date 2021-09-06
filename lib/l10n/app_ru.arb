@@ -18,6 +18,7 @@
   "rideTime": "Езжайте до <b>{destination}</b>, прибытие в {arrival}.",
   "noStopsNearby": "Нет остановок поблизости.",
   "noArrivals": "Сегодня никто не приедет.",
+  "arrivalsError": "Не удалось загрузить расписание.",
   "addBookmark": "Добавить закладку",
   "bookmarkName": "Название",
   "deleteBookmark": "Удалить закладку \"{name}\"?",

@@ -151,7 +151,6 @@ class StopList {
       try {
         stops = await _downloadStops();
       } on StopsDownloadError catch (e) {
-        print('Error downloading stops: ${e.message}');
         if (fallbackToAsset) {
           stops = await _loadStopsFromAsset();
         } else

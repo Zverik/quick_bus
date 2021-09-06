@@ -70,7 +70,6 @@ class _StopMapState extends State<StopMap> {
   }
 
   onLocationError(event) {
-    print('Location stream error.');
     // TODO: Now click on the "track location" icon should resume geolocation.
   }
 

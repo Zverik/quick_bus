@@ -140,6 +140,10 @@
   "@noArrivals": {
     "description": "Message on an arrivals panel when the list is empty."
   },
+  "arrivalsError": "Could not update arrivals.",
+  "@arrivalsError": {
+    "description": "Message on an arrivals panel when there's a network error."
+  },
   "addBookmark": "Add Bookmark",
   "@addBookmark": {
     "description": "Bookmark screen title."

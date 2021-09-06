@@ -5,7 +5,6 @@ import 'package:quick_bus/helpers/siri.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:quick_bus/widgets/arrival_row.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:quick_bus/helpers/rich_tags.dart';
@@ -23,7 +22,6 @@ class ItineraryLeg extends StatefulWidget {
 }
 
 class _ItineraryLegState extends State<ItineraryLeg> {
-  static final tf = DateFormat.Hm();
   Arrival? arrival;
   late List<TextSpan> description;
   late Color pathColor;
@@ -103,8 +101,6 @@ class _ItineraryLegState extends State<ItineraryLeg> {
         relevantArrivals = arrivalsList;
       }
       setState(() {
-        print('Found arrival for ${arrival.route.number} @ ${stop.name}, '
-            '${tf.format(arrival.expected)} => ${tf.format(relevantArrivals.first.expected)}');
         this.arrival = relevantArrivals.first;
       });
     }

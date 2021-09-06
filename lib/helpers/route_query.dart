@@ -12,14 +12,16 @@ import 'package:google_polyline_algorithm/google_polyline_algorithm.dart'
 
 class RouteQueryNetworkError implements Exception {
   int statusCode;
+  Uri uri;
 
-  RouteQueryNetworkError(this.statusCode);
+  RouteQueryNetworkError(this.statusCode, this.uri);
 }
 
 class RouteQueryOTPError implements Exception {
   String message;
+  Uri? uri;
 
-  RouteQueryOTPError(this.message);
+  RouteQueryOTPError(this.message, [this.uri]);
 }
 
 class StopNotFoundError extends Error {}
@@ -40,17 +42,15 @@ class RouteQuery {
     var response = await http.get(uri);
 
     if (response.statusCode != 200) {
-      print('Error ${response.statusCode} for URL $uri');
-      throw RouteQueryNetworkError(response.statusCode);
+      throw RouteQueryNetworkError(response.statusCode, uri);
     }
 
     dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
     if (data == null) {
-      print('Empty response for URL $uri');
-      throw RouteQueryOTPError("Empty response");
+      throw RouteQueryOTPError("Empty response", uri);
     }
     if (data is Map && data.containsKey('error'))
-      throw RouteQueryOTPError(data['error']['message']);
+      throw RouteQueryOTPError(data['error']['message'], uri);
     return data;
   }
 

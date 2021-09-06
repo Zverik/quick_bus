@@ -60,7 +60,7 @@ class BookmarkRow extends StatelessWidget {
             return SearchPage(location);
           }));
         },
-        icon: Icon(Icons.search),
+        icon: Icon(Icons.arrow_forward),
         iconSize: 40.0,
         color: Colors.black,
         // color: Theme.of(context).colorScheme.onPrimary,

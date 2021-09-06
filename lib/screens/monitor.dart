@@ -36,6 +36,7 @@ class _MonitorPageState extends State<MonitorPage> {
   Timer? nearestStopTimer;
   LatLng? locationToUpdateForNearest;
   bool lookingUpArrivals = false;
+  String? arrivalsUpdateError;
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _MonitorPageState extends State<MonitorPage> {
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
-      updateArrivals();
+      updateArrivals(clear: false);
     });
 
     // Otherwise the context does not allow inheritance
@@ -59,23 +60,25 @@ class _MonitorPageState extends State<MonitorPage> {
     super.dispose();
   }
 
-  Future<void> updateArrivals([BusStop? stop]) async {
+  Future<void> updateArrivals({BusStop? stop, bool clear = true}) async {
+    if (clear) arrivals = [];
+    arrivalsUpdateError = null;
     if (stop == null) stop = nearestStop;
     if (stop != null) {
       setState(() {
         lookingUpArrivals = true;
       });
-      arrivals = [];
       try {
-        arrivals = await SiriHelper().getArrivals(stop);
+        var newArrivals = await SiriHelper().getArrivals(stop);
         if (arrivals.isEmpty) {
-          arrivals = await RouteQuery().getArrivals(stop);
+          newArrivals = await RouteQuery().getArrivals(stop);
         }
-      } on SocketException {
-        print('socket error');
+        arrivals = newArrivals;
+      } on SocketException catch (e) {
         // TODO: show dialog, but just one time.
+        arrivalsUpdateError = e.toString();
       } on Exception catch (e) {
-        print('Error updating arrivals: $e');
+        arrivalsUpdateError = e.toString();
       } finally {
         setState(() {
           lookingUpArrivals = false;
@@ -93,7 +96,7 @@ class _MonitorPageState extends State<MonitorPage> {
 
     setState(() {
       nearestStop = nextStop;
-      updateArrivals(nextStop);
+      updateArrivals(stop: nextStop);
     });
   }
 
@@ -173,17 +176,21 @@ class _MonitorPageState extends State<MonitorPage> {
             Consumer(
               builder: (context, watch, child) {
                 final bookmarks = watch(bookmarkProvider);
-                return BookmarkRow(location, bookmarks, orientation: orientation);
+                return BookmarkRow(location, bookmarks,
+                    orientation: orientation);
               },
             ),
             Expanded(
               child: nearestStop == null ||
+                      arrivalsUpdateError != null ||
                       (arrivals.isEmpty && !lookingUpArrivals)
                   ? Center(
                       child: Text(
-                        nearestStop == null
-                            ? AppLocalizations.of(context)!.noStopsNearby
-                            : AppLocalizations.of(context)!.noArrivals,
+                        arrivalsUpdateError != null
+                            ? AppLocalizations.of(context)!.arrivalsError
+                            : nearestStop == null
+                                ? AppLocalizations.of(context)!.noStopsNearby
+                                : AppLocalizations.of(context)!.noArrivals,
                         style: TextStyle(fontSize: 20.0),
                       ),
                     )
@@ -200,9 +207,6 @@ class _MonitorPageState extends State<MonitorPage> {
                 : Axis.horizontal,
             children: children,
           );
-          return orientation == Orientation.portrait
-              ? Column(children: children)
-              : Row(children: children);
         },
       ),
     );

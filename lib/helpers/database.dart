@@ -56,7 +56,6 @@ class DatabaseHelper {
 
   void upgradeDatabase(
       Database database, int oldVersion, int newVersion) async {
-    print('Upgrading database from $oldVersion to $newVersion.');
     if (newVersion >= 2 && oldVersion < 2) {
       await database.execute("alter table $BOOKMARKS add emoji text");
       await database.execute("create table $QUERIES (query text, last_used integer)");
