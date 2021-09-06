@@ -144,6 +144,10 @@
   "@arrivalsError": {
     "description": "Message on an arrivals panel when there's a network error."
   },
+  "bookmarkTarget": "Drag here to set starting location",
+  "@bookmarkTarget": {
+    "description": "When dragging a bookmark, this text appears on top of the map."
+  },
   "addBookmark": "Add Bookmark",
   "@addBookmark": {
     "description": "Bookmark screen title."

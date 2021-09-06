@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:quick_bus/helpers/route_query.dart';
 import 'package:quick_bus/models/arrival.dart';
+import 'package:quick_bus/models/bookmark.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
 import 'package:quick_bus/models/bus_stop.dart';
@@ -37,6 +38,8 @@ class _MonitorPageState extends State<MonitorPage> {
   LatLng? locationToUpdateForNearest;
   bool lookingUpArrivals = false;
   String? arrivalsUpdateError;
+  bool draggingBookmark = false;
+  final stopMapController = StopMapController();
 
   @override
   void initState() {
@@ -151,33 +154,71 @@ class _MonitorPageState extends State<MonitorPage> {
         builder: (BuildContext context, Orientation orientation) {
           final children = <Widget>[
             Expanded(
-              child: StopMap(
-                location: location,
-                track: tracking,
-                chosenStop: nearestStop,
-                onDrag: (pos) {
-                  setState(() {
-                    tracking = false;
-                    location = pos;
-                  });
-                  updateNearestStops(context);
-                },
-                onTrack: (pos) {
-                  lastTrack = pos;
-                  if (tracking) {
-                    setState(() {
-                      location = pos;
-                    });
-                    updateNearestStops(context);
-                  }
-                },
+              child: Stack(
+                children: [
+                  StopMap(
+                    location: location,
+                    track: tracking,
+                    chosenStop: nearestStop,
+                    controller: stopMapController,
+                    onDrag: (pos) {
+                      setState(() {
+                        tracking = false;
+                        location = pos;
+                      });
+                      updateNearestStops(context);
+                    },
+                    onTrack: (pos) {
+                      lastTrack = pos;
+                      if (tracking) {
+                        setState(() {
+                          location = pos;
+                        });
+                        updateNearestStops(context);
+                      }
+                    },
+                  ),
+                  if (draggingBookmark)
+                    DragTarget<Bookmark>(
+                      builder: (context, cData, rData) => Container(
+                        color: Colors.white.withOpacity(0.7),
+                        child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.bookmarkTarget,
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade800,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      onAccept: (bookmark) {
+                        stopMapController.setLocation(bookmark.location);
+                      },
+                    ),
+                ],
               ),
             ),
             Consumer(
               builder: (context, watch, child) {
                 final bookmarks = watch(bookmarkProvider);
-                return BookmarkRow(location, bookmarks,
-                    orientation: orientation);
+                return BookmarkRow(
+                  location,
+                  bookmarks,
+                  orientation: orientation,
+                  onStartDrag: () {
+                    setState(() {
+                      draggingBookmark = true;
+                    });
+                  },
+                  onEndDrag: () {
+                    setState(() {
+                      draggingBookmark = false;
+                    });
+                  },
+                );
               },
             ),
             Expanded(

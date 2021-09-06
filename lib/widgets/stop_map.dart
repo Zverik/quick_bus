@@ -10,19 +10,30 @@ import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class StopMapController {
+  Function(LatLng)? listener;
+
+  setLocation(LatLng location) {
+    if (listener != null)
+      listener!(location);
+  }
+}
+
 class StopMap extends StatefulWidget {
   final LatLng location;
   final bool track;
   final BusStop? chosenStop;
   final void Function(LatLng)? onDrag;
   final void Function(LatLng)? onTrack;
+  final StopMapController? controller;
 
   const StopMap(
       {required this.location,
       this.track = false,
       this.onDrag,
       this.onTrack,
-      this.chosenStop});
+      this.chosenStop,
+      this.controller});
 
   @override
   _StopMapState createState() => _StopMapState();
@@ -41,6 +52,8 @@ class _StopMapState extends State<StopMap> {
   void initState() {
     super.initState();
     mapController = MapController();
+    if (widget.controller != null)
+      widget.controller!.listener = onControllerLocation;
     mapSub = mapController.mapEventStream.listen(onMapEvent);
     locSub = Geolocator.getPositionStream(
       intervalDuration: Duration(seconds: 3),
@@ -54,6 +67,12 @@ class _StopMapState extends State<StopMap> {
       if (widget.onDrag != null && event.source != MapEventSource.mapController)
         widget.onDrag!(event.targetCenter);
     }
+  }
+
+  void onControllerLocation(LatLng location) {
+    mapController.move(location, mapController.zoom);
+    if (widget.onDrag != null)
+      widget.onDrag!(location);
   }
 
   void onLocationEvent(Position pos) {

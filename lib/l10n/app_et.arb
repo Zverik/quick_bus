@@ -19,6 +19,7 @@
   "noStopsNearby": "Läheduses pole ühtegi peatust.",
   "noArrivals": "Täna pole saabujaid.",
   "arrivalsError": "Saabumise ajakava ei saanud värskendada.",
+  "bookmarkTarget": "Lohistage siia, et alustada salvestatud kohast",
   "addBookmark": "Lisage järjehoidja",
   "bookmarkName": "Järjehoidja nimi",
   "deleteBookmark": "Kas kustutada järjehoidja \"{name}\"?",

@@ -10,31 +10,54 @@ class BookmarkRow extends StatelessWidget {
   final LatLng location;
   final bookmarkScrollController = ScrollController();
   final bool isPortrait;
+  final VoidCallback? onStartDrag;
+  final VoidCallback? onEndDrag;
 
-  BookmarkRow(this.location, this.bookmarks, {Orientation? orientation})
+  BookmarkRow(this.location, this.bookmarks,
+      {Orientation? orientation, this.onStartDrag, this.onEndDrag})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   @override
   Widget build(BuildContext context) {
     final bookmarkIcons = <Widget>[
       for (var bookmark in bookmarks)
-        TextButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FindRoutePage(
-                    start: location,
-                    end: bookmark.location,
-                    bookmark: bookmark,
-                  ),
-                ));
-          },
-          child: Text(
+        LongPressDraggable<Bookmark>(
+          feedback: Text(
             bookmark.emoji,
             style: TextStyle(
               fontSize: 40.0,
               color: Theme.of(context).colorScheme.onPrimary,
+              decoration: TextDecoration.none, // to remove yellow double underline
+            ),
+          ),
+          data: bookmark,
+          maxSimultaneousDrags: 1,
+          onDragStarted: () {
+            if (onStartDrag != null)
+              onStartDrag!();
+          },
+          onDragEnd: (_) {
+            if (onEndDrag != null)
+              onEndDrag!();
+          },
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FindRoutePage(
+                      start: location,
+                      end: bookmark.location,
+                      bookmark: bookmark,
+                    ),
+                  ));
+            },
+            child: Text(
+              bookmark.emoji,
+              style: TextStyle(
+                fontSize: 40.0,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
           ),
         ),
