@@ -15,9 +15,10 @@ class ArrivalRow extends StatelessWidget {
   ArrivalRow(this.first, {this.second, this.forceExactTime = false});
 
   String formatArrivalTime(BuildContext context, Arrival arrival) {
-    return arrival.arrivesInSec > 700 || forceExactTime
+    final arrivalSec = arrival.arrivesInSec < 0 ? 0 : arrival.arrivesInSec;
+    return arrivalSec > 700 || forceExactTime
         ? tf.format(arrival.expected)
-        : AppLocalizations.of(context)!.minutes((arrival.arrivesInSec / 60).ceil());
+        : AppLocalizations.of(context)!.minutes((arrivalSec / 60).round());
   }
 
   @override

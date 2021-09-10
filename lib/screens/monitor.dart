@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:quick_bus/helpers/route_query.dart';
+import 'package:quick_bus/helpers/arrivals_cache.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bookmark.dart';
+import 'package:quick_bus/providers/arrivals.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/constants.dart';
-import 'package:quick_bus/helpers/siri.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/screens/itinerary.dart';
@@ -28,18 +27,24 @@ class MonitorPage extends StatefulWidget {
 }
 
 class _MonitorPageState extends State<MonitorPage> {
-  BusStop? nearestStop;
-  List<Arrival> arrivals = [];
-  late LatLng location;
-  bool tracking = true;
-  LatLng? lastTrack;
-  late Timer _timer;
-  Timer? nearestStopTimer;
-  LatLng? locationToUpdateForNearest;
-  bool lookingUpArrivals = false;
-  String? arrivalsUpdateError;
-  bool draggingBookmark = false;
-  final stopMapController = StopMapController();
+  BusStop? nearestStop; // Stop nearest to map center
+  List<Arrival> arrivals = []; // Arrivals for the nearest stop
+  late LatLng location; // Map center location
+  bool tracking = true; // Are we following GPS signal?
+  LatLng? lastTrack; // Last GPS location, even when not tracking
+  Timer? nearestStopTimer; // We update nearest stop with a slight delay
+  LatLng?
+      locationToUpdateForNearest; // And save the last location to find nearest stops for it
+  late Timer _timer; // To update arrivals twice a minute
+  BusStop?
+      lastArrivalsStop; // In case nearest stop is quickly updated, here's the next one
+  bool lookingUpArrivals = false; // Whether we display spinner or an empty list
+  String?
+      arrivalsUpdateError; // Error message for when arrivals querying failed
+  final arrivalsCache = ArrivalsCache(); // To solve issues with arrivals
+  bool draggingBookmark = false; // Are we dragging a bookmark?
+  final stopMapController =
+      StopMapController(); // To force location change on the map
 
   @override
   void initState() {
@@ -47,7 +52,7 @@ class _MonitorPageState extends State<MonitorPage> {
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
-      updateArrivals(clear: false);
+      context.refresh(arrivalsProvider(nearestStop));
     });
 
     // Otherwise the context does not allow inheritance
@@ -63,52 +68,26 @@ class _MonitorPageState extends State<MonitorPage> {
     super.dispose();
   }
 
-  Future<void> updateArrivals({BusStop? stop, bool clear = true}) async {
-    if (clear) arrivals = [];
-    arrivalsUpdateError = null;
-    if (stop == null) stop = nearestStop;
-    if (stop != null) {
-      setState(() {
-        lookingUpArrivals = true;
-      });
-      try {
-        var newArrivals = await SiriHelper().getArrivals(stop);
-        if (arrivals.isEmpty) {
-          newArrivals = await RouteQuery().getArrivals(stop);
-        }
-        arrivals = newArrivals;
-      } on SocketException catch (e) {
-        // TODO: show dialog, but just one time.
-        arrivalsUpdateError = e.toString();
-      } on Exception catch (e) {
-        arrivalsUpdateError = e.toString();
-      } finally {
-        setState(() {
-          lookingUpArrivals = false;
-        });
-      }
-    }
-  }
-
-  forceUpdateNearestStops(BuildContext context, LatLng location) async {
+  forceUpdateNearestStops(
+      BuildContext context, LatLng location, bool shouldUpdateArrivals) async {
     final stopList = context.read(stopsProvider);
     List<BusStop> newStops =
-        await stopList.findNearestStops(location, count: 1);
+        await stopList.findNearestStops(location, count: 1, maxDistance: 200);
     var nextStop = newStops.isEmpty ? null : newStops.first;
     if (nextStop == nearestStop) return;
 
     setState(() {
       nearestStop = nextStop;
-      updateArrivals(stop: nextStop);
     });
   }
 
-  updateNearestStops(BuildContext context) {
+  updateNearestStops(BuildContext context, {bool shouldUpdateArrivals = true}) {
     locationToUpdateForNearest = location;
     if (nearestStopTimer != null) return;
     nearestStopTimer = Timer(Duration(milliseconds: 300), () async {
       nearestStopTimer = null;
-      forceUpdateNearestStops(context, locationToUpdateForNearest!);
+      forceUpdateNearestStops(
+          context, locationToUpdateForNearest!, shouldUpdateArrivals);
     });
   }
 
@@ -144,7 +123,8 @@ class _MonitorPageState extends State<MonitorPage> {
                       tracking = true;
                       if (lastTrack != null) location = lastTrack!;
                     });
-                    updateNearestStops(context);
+                    stopMapController.setLocation(location);
+                    // updateNearestStops(context);
                   },
             icon: const Icon(Icons.my_location),
           ),
@@ -166,7 +146,10 @@ class _MonitorPageState extends State<MonitorPage> {
                         tracking = false;
                         location = pos;
                       });
-                      updateNearestStops(context);
+                      updateNearestStops(context, shouldUpdateArrivals: false);
+                    },
+                    onDragEnd: (pos) {
+                      // context.refresh(arrivalsProvider(nearestStop));
                     },
                     onTrack: (pos) {
                       lastTrack = pos;
@@ -222,22 +205,54 @@ class _MonitorPageState extends State<MonitorPage> {
               },
             ),
             Expanded(
-              child: nearestStop == null ||
-                      arrivalsUpdateError != null ||
-                      (arrivals.isEmpty && !lookingUpArrivals)
+              child: nearestStop == null
                   ? Center(
-                      child: Text(
-                        arrivalsUpdateError != null
-                            ? AppLocalizations.of(context)!.arrivalsError
-                            : nearestStop == null
-                                ? AppLocalizations.of(context)!.noStopsNearby
-                                : AppLocalizations.of(context)!.noArrivals,
-                        style: TextStyle(fontSize: 20.0),
-                      ),
+                      child: Text(AppLocalizations.of(context)!.noStopsNearby,
+                          style: kArrivalsMessageStyle),
                     )
                   : RefreshIndicator(
-                      onRefresh: () => updateArrivals(),
-                      child: ArrivalsList(arrivals),
+                      onRefresh: () =>
+                          context.refresh(arrivalsProvider(nearestStop)),
+                      child: Consumer(
+                        builder: (context, watch, child) {
+                          final arrivalsValue =
+                              watch(arrivalsProvider(nearestStop));
+                          return arrivalsValue.when(
+                            data: (data) => data.isEmpty
+                                ? Center(
+                                    child: Text(
+                                        AppLocalizations.of(context)!
+                                            .noArrivals,
+                                        style: kArrivalsMessageStyle),
+                                  )
+                                : ArrivalsList(data),
+                            loading: () =>
+                                Center(child: CircularProgressIndicator()),
+                            error: (e, stackTrace) => Center(
+                              child: SingleChildScrollView(
+                                physics: AlwaysScrollableScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Text(
+                                        AppLocalizations.of(context)!
+                                            .arrivalsError,
+                                        textAlign: TextAlign.center,
+                                        style: kArrivalsMessageStyle),
+                                    SizedBox(height: 10.0),
+                                    Text(
+                                      e.toString(),
+                                      style: TextStyle(fontSize: 12.0),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
             ),
           ];

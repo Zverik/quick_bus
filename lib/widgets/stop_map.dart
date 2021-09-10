@@ -14,8 +14,7 @@ class StopMapController {
   Function(LatLng)? listener;
 
   setLocation(LatLng location) {
-    if (listener != null)
-      listener!(location);
+    if (listener != null) listener!(location);
   }
 }
 
@@ -24,6 +23,7 @@ class StopMap extends StatefulWidget {
   final bool track;
   final BusStop? chosenStop;
   final void Function(LatLng)? onDrag;
+  final void Function(LatLng)? onDragEnd;
   final void Function(LatLng)? onTrack;
   final StopMapController? controller;
 
@@ -31,6 +31,7 @@ class StopMap extends StatefulWidget {
       {required this.location,
       this.track = false,
       this.onDrag,
+      this.onDragEnd,
       this.onTrack,
       this.chosenStop,
       this.controller});
@@ -59,6 +60,9 @@ class _StopMapState extends State<StopMap> {
       intervalDuration: Duration(seconds: 3),
       desiredAccuracy: LocationAccuracy.high,
     ).listen(onLocationEvent, onError: onLocationError, cancelOnError: true);
+    Future.delayed(Duration(milliseconds: 500), () {
+      updateNearestStops(context);
+    });
   }
 
   void onMapEvent(MapEvent event) {
@@ -66,13 +70,16 @@ class _StopMapState extends State<StopMap> {
       updateNearestStops(context, event.targetCenter);
       if (widget.onDrag != null && event.source != MapEventSource.mapController)
         widget.onDrag!(event.targetCenter);
+    } else if (event is MapEventMoveEnd) {
+      if (widget.onDragEnd != null &&
+          event.source != MapEventSource.mapController)
+        widget.onDragEnd!(event.center);
     }
   }
 
   void onControllerLocation(LatLng location) {
     mapController.move(location, mapController.zoom);
-    if (widget.onDrag != null)
-      widget.onDrag!(location);
+    if (widget.onDrag != null) widget.onDrag!(location);
   }
 
   void onLocationEvent(Position pos) {
@@ -99,15 +106,16 @@ class _StopMapState extends State<StopMap> {
     super.dispose();
   }
 
-  updateNearestStops(BuildContext context, LatLng around) {
+  updateNearestStops(BuildContext context, [LatLng? around]) {
+    if (around == null) around = widget.location;
     final distance = DistanceEquirectangular();
     if (lastNearestStopCheck != null &&
-        distance(lastNearestStopCheck!, around) <
-            kNearestStopUpdateThreshold) return;
-    lastNearestStopCheck = widget.location;
+        distance(lastNearestStopCheck!, around) < kNearestStopUpdateThreshold)
+      return;
+    lastNearestStopCheck = around;
 
     final stopList = context.read(stopsProvider);
-    stopList.findNearestStops(around, count: 10).then((stops) {
+    stopList.findNearestStops(around, count: 10, maxDistance: 1000).then((stops) {
       setState(() {
         nearestStops =
             stops.map((stop) => stop.location).toList(growable: false);

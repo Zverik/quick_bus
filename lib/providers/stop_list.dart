@@ -41,6 +41,24 @@ class CachedNearestStops {
   }
 }
 
+List<SiriBusStop> _parseStopCSV(String data) {
+  final parser = CsvToListConverter(
+    fieldDelimiter: ';',
+    shouldParseNumbers: false,
+    eol: '\n',
+  );
+  final List<SiriBusStop> newStops = [];
+  String lastName = '';
+  for (var row in parser.convert(data)) {
+    if (row[0] == 'ID') continue;
+    final strRow = [for (var part in row) part.toString()];
+    if (strRow.length >= 6 && strRow[5].isNotEmpty) lastName = strRow[5];
+    if (SiriBusStop.validate(strRow))
+      newStops.add(SiriBusStop.fromList(strRow, lastName));
+  }
+  return newStops;
+}
+
 class StopList {
   CachedNearestStops cachedNearest = CachedNearestStops.dummy;
 
@@ -181,24 +199,6 @@ class StopList {
     return rowCount == null || rowCount < kMinimumStopCount;
   }
 
-  List<SiriBusStop> _parseStopCSV(String data) {
-    final parser = CsvToListConverter(
-      fieldDelimiter: ';',
-      shouldParseNumbers: false,
-      eol: '\n',
-    );
-    final List<SiriBusStop> newStops = [];
-    String lastName = '';
-    for (var row in parser.convert(data)) {
-      if (row[0] == 'ID') continue;
-      final strRow = [for (var part in row) part.toString()];
-      if (strRow.length >= 6 && strRow[5].isNotEmpty) lastName = strRow[5];
-      if (SiriBusStop.validate(strRow))
-        newStops.add(SiriBusStop.fromList(strRow, lastName));
-    }
-    return newStops;
-  }
-
   Future<List<SiriBusStop>> _downloadStops() async {
     var response =
         await http.get(Uri.https('transport.tallinn.ee', '/data/stops.txt'));
@@ -206,7 +206,7 @@ class StopList {
     if (response.statusCode != 200) {
       throw StopsDownloadError('Failed to load stops: ${response.statusCode}');
     }
-    final result = _parseStopCSV(utf8.decode(response.bodyBytes));
+    final result = await compute(_parseStopCSV, utf8.decode(response.bodyBytes));
     if (result.length < kMinimumStopCount)
       throw StopsDownloadError(
           'Got only ${result.length} stops, must be an error.');
@@ -215,6 +215,6 @@ class StopList {
 
   Future<List<SiriBusStop>> _loadStopsFromAsset() async {
     final data = await rootBundle.loadString('assets/stops.txt');
-    return _parseStopCSV(data);
+    return await compute(_parseStopCSV, data);
   }
 }

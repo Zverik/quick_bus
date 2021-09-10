@@ -139,7 +139,7 @@ class _RoutePageState extends State<RoutePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '${widget.arrival.route.mode.name} ${widget.arrival.route.number}'),
+            '${widget.arrival.route.mode.localizedName(context)} ${widget.arrival.route.number}'),
         actions: [
           if (route != null)
             IconButton(

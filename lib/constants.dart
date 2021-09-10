@@ -1,4 +1,4 @@
-import 'package:quick_bus/helpers/equirectangular.dart';
+import 'package:flutter/material.dart';
 
 const kAppTitle = 'Quick Bus Tallinn';
 const kDefaultLocation = <double>[59.42, 24.71];
@@ -11,3 +11,4 @@ const kPlanBefore = Duration(minutes: 2);
 const kGeohashPrecision = 6; // ~600 meters
 const kMinimumStopCount = 3000;
 const kHostToPing = 'transport.tallinn.ee';
+const kArrivalsMessageStyle = TextStyle(fontSize: 20.0);
