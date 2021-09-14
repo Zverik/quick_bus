@@ -204,6 +204,10 @@
   "@bookmarkName": {
     "description": "Hint on the bookmark adding screen."
   },
+  "chooseEmoji": "Choose an emoji",
+  "@chooseEmoji": {
+    "description": "Hint for the emoji picked on the bookmark adding screen."
+  },
   "deleteBookmark": "Delete bookmark \"{name}\"?",
   "@deleteBookmark": {
     "description": "Text on a panel for deleting a bookmark.",

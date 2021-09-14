@@ -74,6 +74,14 @@ class _AddBookmarkPageState extends State<AddBookmarkPage> {
               ),
             ),
             SizedBox(height: 10.0),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(left: 4.0),
+              child: Text(
+                AppLocalizations.of(context)!.chooseEmoji + ':',
+                textAlign: TextAlign.start,
+              ),
+            ),
             Expanded(
               child: EmojiPicker(
                 onEmojiSelected: (category, emoji) {

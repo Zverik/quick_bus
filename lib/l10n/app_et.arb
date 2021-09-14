@@ -30,6 +30,7 @@
   "bookmarkTarget": "Lohistage siia, et alustada salvestatud kohast",
   "addBookmark": "Lisage järjehoidja",
   "bookmarkName": "Järjehoidja nimi",
+  "chooseEmoji": "Valige emotikon",
   "deleteBookmark": "Kas kustutada järjehoidja \"{name}\"?",
   "delete": "Kustutada",
   "enableInternet": "Palun lülitage võrgule juurdepääs sisse, muidu ei saa ma marsruudi andmeid kätte.",

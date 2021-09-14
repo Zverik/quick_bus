@@ -2,14 +2,14 @@
 
 ## 1.0.3
 
-_Not yet released_
+_Released on 2021-09-14_
 
 - Added an item to the search panel to choose a destination on a map.
 - Fixed an error when last destination became starting location.
 - Searching failed when results contained an address.
 - Search result type was made less prominent.
 - OpenStreetMap attribution.
-- Better default category for the emoji picker.
+- Better default category and a label for the emoji picker.
 - Added accessibility features.
 
 ## 1.0.2
