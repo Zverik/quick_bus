@@ -48,6 +48,7 @@ class _StopMapState extends State<StopMap> {
   List<LatLng> nearestStops = [];
   LatLng? lastNearestStopCheck;
   static const kNearestStopUpdateThreshold = 100.0; // meters
+  bool showAttribution = true;
 
   @override
   void initState() {
@@ -62,6 +63,13 @@ class _StopMapState extends State<StopMap> {
     ).listen(onLocationEvent, onError: onLocationError, cancelOnError: true);
     Future.delayed(Duration(milliseconds: 500), () {
       updateNearestStops(context);
+    });
+    Future.delayed(Duration(seconds: 9), () {
+      if (showAttribution) {
+        setState(() {
+          showAttribution = false;
+        });
+      }
     });
   }
 
@@ -115,7 +123,9 @@ class _StopMapState extends State<StopMap> {
     lastNearestStopCheck = around;
 
     final stopList = context.read(stopsProvider);
-    stopList.findNearestStops(around, count: 10, maxDistance: 1000).then((stops) {
+    stopList
+        .findNearestStops(around, count: 10, maxDistance: 1000)
+        .then((stops) {
       setState(() {
         nearestStops =
             stops.map((stop) => stop.location).toList(growable: false);
@@ -138,6 +148,12 @@ class _StopMapState extends State<StopMap> {
         TileLayerOptions(
           urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           subdomains: ['a', 'b', 'c'],
+          attributionBuilder: !showAttribution
+              ? null
+              : (context) => Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Text('© OpenStreetMap contributors'),
+              ),
         ),
         CircleLayerOptions(
           circles: [

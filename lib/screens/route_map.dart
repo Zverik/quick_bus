@@ -150,6 +150,7 @@ class _RoutePageState extends State<RoutePage> {
               },
               icon: Icon(
                   showLabels ? Icons.label_off_outlined : Icons.label_outline),
+              tooltip: AppLocalizations.of(context)?.showStopNames,
             ),
         ],
       ),

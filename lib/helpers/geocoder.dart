@@ -12,7 +12,7 @@ class GeocoderError extends Error {
 class GeocoderResponseItem {
   final LatLng location;
   final String type;
-  final String name;
+  final String? name;
   final String? city;
   final String? street;
   final String? house;
@@ -24,9 +24,9 @@ class GeocoderResponseItem {
   GeocoderResponseItem({
     required this.location,
     required this.type,
-    required this.name,
     required this.osmKey,
     required this.osmValue,
+    this.name,
     this.city,
     this.street,
     this.house,
@@ -34,7 +34,14 @@ class GeocoderResponseItem {
     this.district,
   });
 
-  static const poiKeys = <String>{'natural', 'amenity', 'shop', 'tourism', 'historic', 'man_made'};
+  static const poiKeys = <String>{
+    'natural',
+    'amenity',
+    'shop',
+    'tourism',
+    'historic',
+    'man_made'
+  };
 
   String get title {
     String trueType;
@@ -44,12 +51,21 @@ class GeocoderResponseItem {
       trueType = 'building';
     else
       trueType = type;
-    return '${trueType[0].toUpperCase()}${trueType.substring(1)} $name';
+    if (name == null) {
+      // Return a short address for a title
+      String? addr = [street, house].where((e) => e != null).join(', ');
+      if (addr.isEmpty)
+        addr = [locality, district, city].firstWhere((e) => e != null);
+      return addr ?? trueType;
+    }
+    return '$name, $trueType';
   }
-  
+
   String get address {
     String houseAddress = [street, house].where((e) => e != null).join(' ');
-    String loc = [houseAddress, locality, district, city].where((e) => e != null && e.isNotEmpty).join(', ');
+    String loc = [name != null ? houseAddress : null, locality, district, city]
+        .where((e) => e != null && e.isNotEmpty)
+        .join(', ');
     return loc;
   }
 }

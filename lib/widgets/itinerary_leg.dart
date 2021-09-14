@@ -141,8 +141,8 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             ),
             minZoom: 10.0,
             maxZoom: 18.0,
-            interactiveFlags:
-                InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
+            interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
+            allowPanningOnScrollingParent: false,
           ),
           layers: [
             TileLayerOptions(
@@ -182,13 +182,13 @@ class _ItineraryLegState extends State<ItineraryLeg> {
     );
     if (widget.isPortrait) {
       return Column(
-        children: [descPart, map],
+        children: [descPart, ExcludeSemantics(child: map)],
       );
     } else {
       // landscape
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Expanded(child: descPart), Expanded(child: map)],
+        children: [Expanded(child: descPart), ExcludeSemantics(child: Expanded(child: map))],
       );
     }
   }

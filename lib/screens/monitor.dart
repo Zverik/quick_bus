@@ -105,6 +105,7 @@ class _MonitorPageState extends State<MonitorPage> {
               else
                 return IconButton(
                     icon: Icon(Icons.bookmark),
+                    tooltip: AppLocalizations.of(context)?.restorePlan,
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -127,6 +128,7 @@ class _MonitorPageState extends State<MonitorPage> {
                     // updateNearestStops(context);
                   },
             icon: const Icon(Icons.my_location),
+            tooltip: AppLocalizations.of(context)?.myLocation,
           ),
         ],
       ),

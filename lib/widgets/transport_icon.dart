@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:quick_bus/models/route.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class LegIcon extends StatelessWidget {
   final RouteElement leg;
@@ -9,25 +10,18 @@ class LegIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color background = Colors.white;
-    IconData icon = Icons.error_outline;
-    String number = '';
-    bool isBold = false;
+    if (leg is TransitRouteElement)
+      return TransitIcon((leg as TransitRouteElement).route);
 
-    if (leg is WalkRouteElement) {
-      background = Colors.grey.shade200;
-      icon = Icons.directions_walk;
-      number = (leg.durationSeconds / 60.0).round().toString();
-    } else {
-      var mode = (leg as TransitRouteElement).route.mode;
-      number = (leg as TransitRouteElement).route.number;
-      isBold = true;
-      icon = mode.icon;
-      background = mode.color;
-    }
-
+    final loc = AppLocalizations.of(context)!;
+    final minutes = (leg.durationSeconds / 60.0).round().toString();
     return RoutePlace(
-        color: background, number: number, icon: icon, isBold: isBold);
+      color: Colors.grey.shade200,
+      number: minutes,
+      icon: Icons.directions_walk,
+      isBold: false,
+      semantics: loc.walkMin(loc.minutes(minutes)),
+    );
   }
 }
 
@@ -43,6 +37,7 @@ class TransitIcon extends StatelessWidget {
       number: route.number,
       icon: route.mode.icon,
       isBold: true,
+      semantics: '${route.mode.localizedName(context)} ${route.number}',
     );
   }
 }
@@ -52,41 +47,48 @@ class RoutePlace extends StatelessWidget {
   final String number;
   final IconData icon;
   final bool isBold;
+  final String semantics;
 
   RoutePlace(
       {required this.color,
       required this.number,
       required this.icon,
-      required this.isBold});
+      required this.isBold,
+      required this.semantics});
 
   @override
   Widget build(BuildContext context) {
     Color foreground =
         color.computeLuminance() >= 0.8 ? Colors.black : Colors.white;
 
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      margin: EdgeInsets.symmetric(horizontal: 2.0),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5.0),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: foreground,
-            size: 20.0,
+    return Semantics(
+      label: semantics,
+      child: ExcludeSemantics(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+          margin: EdgeInsets.symmetric(horizontal: 2.0),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(5.0),
           ),
-          Text(
-            number,
-            style: TextStyle(
-              color: foreground,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              fontSize: 20.0,
-            ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: foreground,
+                size: 20.0,
+              ),
+              Text(
+                number,
+                style: TextStyle(
+                  color: foreground,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 20.0,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -7,6 +7,10 @@
   "@acquiringLocation": {
     "description": "On the loading screen, a message when acquiring geolocation."
   },
+  "myLocation": "My Location",
+  "@myLocation": {
+    "description": "Accessibility label for my location button on the main screen."
+  },
   "next": "next {time}",
   "@next": {
     "description": "For the timetable, prefix for next arrival ('next 12:30'). Keep it short.",
@@ -20,6 +24,14 @@
   "search": "Search...",
   "@search": {
     "description": "Placeholder for the search text field."
+  },
+  "chooseOnMap": "Choose on a map...",
+  "@chooseOnMap": {
+    "description": "Item in the search panel to direct to the map for choosing a destination."
+  },
+  "showMap": "Map",
+  "@showMap": {
+    "description": "Accessibility label for a map icon next to a search result."
   },
   "whereTo": "Where to?",
   "@whereTo": {
@@ -36,6 +48,10 @@
   "noRoutes": "No routes found, sorry.",
   "@noRoutes": {
     "description": "When no routes to a destination found."
+  },
+  "showStopNames": "Stop names",
+  "@showStopNames": {
+    "description": "Accessibility text for a button to show stop names on a map."
   },
   "loadingRoute": "Loading the route...",
   "@loadingRoute": {
@@ -59,6 +75,38 @@
         "example": "3"
       }
     }
+  },
+  "walkMin": "Walk {min}",
+  "@walkMin": {
+    "description": "Accessibility text for walking N minutes.",
+    "placeholders": {
+      "min": {
+        "example": "4 min"
+      }
+    }
+  },
+  "arrivesText": "{bus} to {headsign} arrives {when}",
+  "@arrivesText": {
+    "description": "Accessibility text for an arrival row.",
+    "placeholders": {
+      "bus": {
+        "example": "Tram 3"
+      },
+      "headsign": {
+        "example": "Balti jaam"
+      },
+      "when": {
+        "example": "3 min"
+      }
+    }
+  },
+  "storePlan": "Save route plan",
+  "@storePlan": {
+    "description": "Accessibility text for the route plan bookmark button."
+  },
+  "restorePlan": "Stored route plan",
+  "@restorePlan": {
+    "description": "Accessibility text for the route plan button on the main screen."
   },
   "busLeavesFrom": "{bus} leaves at {time} from {stop}",
   "@busLeavesFrom": {

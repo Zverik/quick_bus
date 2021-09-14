@@ -99,31 +99,39 @@ class _FindRoutePageState extends State<FindRoutePage> {
       body: body,
       floatingActionButton: options == null
           ? null
-          : FloatingActionButton(
-              child: Icon(widget.bookmark == null ? Icons.add : Icons.delete),
-              onPressed: () async {
-                var bookmarkHelper = context.read(bookmarkProvider.notifier);
-                if (widget.bookmark == null) {
-                  Bookmark? result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddBookmarkPage(widget.end),
-                      ));
-                  if (result != null) bookmarkHelper.addBookmark(result);
-                } else {
-                  OkCancelResult result = await showOkCancelAlertDialog(
-                    context: context,
-                    title: '${loc.delete}?',
-                    message: loc.deleteBookmark(widget.bookmark!.name),
-                    okLabel: loc.delete,
-                  );
-                  if (result == OkCancelResult.ok) {
-                    bookmarkHelper.removeBookmark(widget.bookmark!);
-                    Navigator.pop(context);
-                  }
-                }
-              },
-            ),
+          : widget.bookmark == null
+              ? FloatingActionButton(
+                  child: Icon(Icons.add),
+                  tooltip: AppLocalizations.of(context)?.addBookmark,
+                  onPressed: () async {
+                    var bookmarkHelper =
+                        context.read(bookmarkProvider.notifier);
+                    Bookmark? result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddBookmarkPage(widget.end),
+                        ));
+                    if (result != null) bookmarkHelper.addBookmark(result);
+                  },
+                )
+              : FloatingActionButton(
+                  child: Icon(Icons.delete),
+                  tooltip: AppLocalizations.of(context)?.deleteBookmark(""),
+                  onPressed: () async {
+                    var bookmarkHelper =
+                        context.read(bookmarkProvider.notifier);
+                    OkCancelResult result = await showOkCancelAlertDialog(
+                      context: context,
+                      title: '${loc.delete}?',
+                      message: loc.deleteBookmark(widget.bookmark!.name),
+                      okLabel: loc.delete,
+                    );
+                    if (result == OkCancelResult.ok) {
+                      bookmarkHelper.removeBookmark(widget.bookmark!);
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
     );
   }
 }

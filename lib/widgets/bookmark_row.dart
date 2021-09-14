@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:quick_bus/screens/search.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class BookmarkRow extends StatelessWidget {
   final List<Bookmark> bookmarks;
@@ -54,6 +55,7 @@ class BookmarkRow extends StatelessWidget {
             },
             child: Text(
               bookmark.emoji,
+              semanticsLabel: bookmark.name,
               style: TextStyle(
                 fontSize: 40.0,
                 color: Theme.of(context).colorScheme.onPrimary,
@@ -76,7 +78,7 @@ class BookmarkRow extends StatelessWidget {
           ),
         ),
       ),
-      Expanded(child: Container()),
+      Spacer(),
       IconButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -84,6 +86,7 @@ class BookmarkRow extends StatelessWidget {
           }));
         },
         icon: Icon(Icons.arrow_forward),
+        tooltip: AppLocalizations.of(context)!.whereTo,
         iconSize: 40.0,
         color: Colors.black,
         // color: Theme.of(context).colorScheme.onPrimary,

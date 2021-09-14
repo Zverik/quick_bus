@@ -4,6 +4,7 @@ import 'package:quick_bus/models/route_element.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_bus/widgets/itinerary_leg.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class ItineraryPage extends StatelessWidget {
   final List<RouteElement> itinerary;
@@ -28,6 +29,7 @@ class ItineraryPage extends StatelessWidget {
               return IconButton(
                 icon:
                     Icon(isThisPlan ? Icons.bookmark : Icons.bookmark_outline),
+                tooltip: AppLocalizations.of(context)?.storePlan,
                 onPressed: () {
                   var planHelper = context.read(savedPlanProvider.notifier);
                   if (!isThisPlan)
