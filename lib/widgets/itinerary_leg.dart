@@ -9,12 +9,14 @@ import 'package:quick_bus/widgets/arrival_row.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:quick_bus/helpers/rich_tags.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 
 class ItineraryLeg extends StatefulWidget {
   final RouteElement leg;
   final bool isPortrait;
+  final LatLng? location;
 
-  ItineraryLeg(this.leg, {Orientation? orientation})
+  ItineraryLeg(this.leg, {Orientation? orientation, this.location})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   @override
@@ -141,13 +143,23 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             ),
             minZoom: 10.0,
             maxZoom: 18.0,
-            interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
+            // interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
             allowPanningOnScrollingParent: false,
           ),
           layers: [
             TileLayerOptions(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
+            ),
+            CircleLayerOptions(
+              circles: [
+                if (widget.location != null)
+                  CircleMarker(
+                    point: widget.location!,
+                    color: Colors.blue.withOpacity(0.6),
+                    radius: 20.0,
+                  ),
+              ],
             ),
             PolylineLayerOptions(polylines: [
               Polyline(
@@ -188,7 +200,10 @@ class _ItineraryLegState extends State<ItineraryLeg> {
       // landscape
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Expanded(child: descPart), ExcludeSemantics(child: Expanded(child: map))],
+        children: [
+          Expanded(child: descPart),
+          ExcludeSemantics(child: Expanded(child: map))
+        ],
       );
     }
   }

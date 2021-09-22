@@ -1,5 +1,15 @@
 # QuickBus Tallin Change Log
 
+## 1.0.4
+
+_Unreleased_
+
+- On the itinerary screen, draw a blue circle for the user's location.
+- Hide itinerary legs that are in the past.
+- After adding a bookmark, the route variant page is updated to reflect that.
+- `LOCATION_NOT_ACCESSIBLE` OpenTripPlanner error is now translated.
+- When scrolling too far from GPS location, show a bookmark to route back to you.
+
 ## 1.0.3
 
 _Released on 2021-09-14_

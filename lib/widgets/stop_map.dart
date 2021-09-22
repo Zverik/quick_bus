@@ -160,7 +160,7 @@ class _StopMapState extends State<StopMap> {
             if (trackLocation != null)
               CircleMarker(
                 point: trackLocation!,
-                color: Colors.blue.withAlpha(150),
+                color: Colors.blue.withOpacity(0.6),
                 radius: 20.0,
               ),
             for (var stop in nearestStops)

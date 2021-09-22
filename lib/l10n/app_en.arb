@@ -49,6 +49,10 @@
   "@noRoutes": {
     "description": "When no routes to a destination found."
   },
+  "locationNotAccessible": "Cannot find a route to the destination.",
+  "@locationNotAccessible": {
+    "description": "OpenTripPlanner error when it cannot build a route."
+  },
   "showStopNames": "Stop names",
   "@showStopNames": {
     "description": "Accessibility text for a button to show stop names on a map."

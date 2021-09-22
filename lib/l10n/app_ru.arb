@@ -10,6 +10,7 @@
   "newDestination": "Новый пункт назначения",
   "lookingForRoute": "Ищу варианты поездок...",
   "noRoutes": "Нет вариантов, извините.",
+  "locationNotAccessible": "Не построить маршрут до этой точки.",
   "showStopNames": "Названия остановок",
   "loadingRoute": "Загружаю маршрут...",
   "errorLoadingRoute": "Ошибка загрузки маршрута: {message}.",

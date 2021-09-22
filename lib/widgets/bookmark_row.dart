@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quick_bus/constants.dart';
+import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/models/bookmark.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/screens/find_route.dart';
@@ -9,17 +11,30 @@ import 'package:flutter_gen/gen_l10n/l10n.dart';
 class BookmarkRow extends StatelessWidget {
   final List<Bookmark> bookmarks;
   final LatLng location;
+  final LatLng? trackLocation;
   final bookmarkScrollController = ScrollController();
   final bool isPortrait;
   final VoidCallback? onStartDrag;
   final VoidCallback? onEndDrag;
 
   BookmarkRow(this.location, this.bookmarks,
-      {Orientation? orientation, this.onStartDrag, this.onEndDrag})
+      {Orientation? orientation, this.onStartDrag, this.onEndDrag, this.trackLocation})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
+
+  bool isFarEnough() {
+    if (trackLocation == null)
+      return false;
+    final distance = DistanceEquirectangular();
+    return distance(trackLocation!, location) > kRouteToSelfDistance;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bookmarks = trackLocation != null && isFarEnough() ? [Bookmark(
+      name: AppLocalizations.of(context)!.myLocation,
+      location: trackLocation!,
+      emoji: '📍',
+    ), ...this.bookmarks] : this.bookmarks;
     final bookmarkIcons = <Widget>[
       for (var bookmark in bookmarks)
         LongPressDraggable<Bookmark>(

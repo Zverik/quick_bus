@@ -24,10 +24,12 @@ class FindRoutePage extends StatefulWidget {
 class _FindRoutePageState extends State<FindRoutePage> {
   List<List<RouteElement>>? options;
   String? errorMessage;
+  Bookmark? bookmark;
 
   @override
   void initState() {
     super.initState();
+    this.bookmark = widget.bookmark;
     findRoute();
   }
 
@@ -46,7 +48,10 @@ class _FindRoutePageState extends State<FindRoutePage> {
     } on RouteQueryOTPError catch (e) {
       setState(() {
         options = [];
-        errorMessage = 'OTP says ${e.message}';
+        if (e.message == 'LOCATION_NOT_ACCESSIBLE')
+          errorMessage = AppLocalizations.of(context)!.locationNotAccessible;
+        else
+          errorMessage = 'OpenTripPlanner error ${e.message}';
       });
     }
   }
@@ -72,17 +77,25 @@ class _FindRoutePageState extends State<FindRoutePage> {
         ],
       );
     } else if (errorMessage != null) {
-      body = Center(
-        child: Text(
-          errorMessage!,
-          style: TextStyle(fontSize: 20.0),
+      body = Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Text(
+            errorMessage!,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20.0),
+          ),
         ),
       );
     } else if (options!.isEmpty) {
-      body = Center(
-        child: Text(
-          loc.noRoutes,
-          style: TextStyle(fontSize: 20.0),
+      body = Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Text(
+            loc.noRoutes,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20.0),
+          ),
         ),
       );
     } else {
@@ -94,12 +107,12 @@ class _FindRoutePageState extends State<FindRoutePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.bookmark?.name ?? loc.newDestination),
+        title: Text(bookmark?.name ?? loc.newDestination),
       ),
       body: body,
-      floatingActionButton: options == null
+      floatingActionButton: options == null || (bookmark != null && bookmark!.id == null)
           ? null
-          : widget.bookmark == null
+          : bookmark == null
               ? FloatingActionButton(
                   child: Icon(Icons.add),
                   tooltip: AppLocalizations.of(context)?.addBookmark,
@@ -111,7 +124,12 @@ class _FindRoutePageState extends State<FindRoutePage> {
                         MaterialPageRoute(
                           builder: (context) => AddBookmarkPage(widget.end),
                         ));
-                    if (result != null) bookmarkHelper.addBookmark(result);
+                    if (result != null) {
+                      bookmarkHelper.addBookmark(result);
+                      setState(() {
+                        bookmark = result;
+                      });
+                    }
                   },
                 )
               : FloatingActionButton(
@@ -123,12 +141,15 @@ class _FindRoutePageState extends State<FindRoutePage> {
                     OkCancelResult result = await showOkCancelAlertDialog(
                       context: context,
                       title: '${loc.delete}?',
-                      message: loc.deleteBookmark(widget.bookmark!.name),
+                      message: loc.deleteBookmark(bookmark!.name),
                       okLabel: loc.delete,
                     );
                     if (result == OkCancelResult.ok) {
-                      bookmarkHelper.removeBookmark(widget.bookmark!);
+                      bookmarkHelper.removeBookmark(bookmark!);
                       Navigator.pop(context);
+                      setState(() {
+                        bookmark = null;
+                      });
                     }
                   },
                 ),

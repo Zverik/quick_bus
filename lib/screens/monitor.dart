@@ -192,6 +192,7 @@ class _MonitorPageState extends State<MonitorPage> {
                 return BookmarkRow(
                   location,
                   bookmarks,
+                  trackLocation: lastTrack,
                   orientation: orientation,
                   onStartDrag: () {
                     setState(() {
