@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_bus/helpers/database.dart';
 import 'package:quick_bus/models/bookmark.dart';
-import 'package:latlong2/latlong.dart';
 
 final bookmarkProvider =
     StateNotifierProvider<BookmarksController, List<Bookmark>>(

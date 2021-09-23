@@ -168,7 +168,7 @@ class StopList {
       List<SiriBusStop> stops;
       try {
         stops = await _downloadStops();
-      } on StopsDownloadError catch (e) {
+      } on StopsDownloadError {
         if (fallbackToAsset) {
           stops = await _loadStopsFromAsset();
         } else

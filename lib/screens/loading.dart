@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:quick_bus/constants.dart';
-import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/screens/monitor.dart';
 import 'package:latlong2/latlong.dart';

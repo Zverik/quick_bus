@@ -1,7 +1,6 @@
 import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:proximity_hash/geohash.dart';
-import 'package:proximity_hash/proximity_hash.dart';
 import 'package:quick_bus/constants.dart';
 
 class BusStop {

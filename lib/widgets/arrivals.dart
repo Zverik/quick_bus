@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quick_bus/models/arrival.dart';
-import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/models/route.dart';
 import 'package:quick_bus/screens/route_map.dart';
 import 'package:quick_bus/widgets/arrival_row.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class ArrivalDisplayedItem {
   final Arrival first;
