@@ -1,8 +1,18 @@
 # QuickBus Tallin Change Log
 
-## 1.0.4
+## 1.0.5
 
 _Unreleased_
+
+- Arrivals are not updated when dragging a map now.
+- Emoji picker when adding a bookmark was resetting itself constantly when typing.
+- Location did not keep tracking GPS after pressing the tracking button.
+- On the destination map, replaced a search button with a "my location" button.
+- Enabled labels by default on the route overview map.
+
+## 1.0.4
+
+_Released on 2021-09-23_
 
 - On the itinerary screen, draw a blue circle for the user's location.
 - Hide itinerary legs that are in the past.

@@ -11,10 +11,10 @@ import 'package:quick_bus/models/bus_stop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StopMapController {
-  Function(LatLng)? listener;
+  Function(LatLng, bool)? listener;
 
-  setLocation(LatLng location) {
-    if (listener != null) listener!(location);
+  setLocation(LatLng location, {bool emitDrag = true}) {
+    if (listener != null) listener!(location, emitDrag);
   }
 }
 
@@ -85,9 +85,10 @@ class _StopMapState extends State<StopMap> {
     }
   }
 
-  void onControllerLocation(LatLng location) {
+  void onControllerLocation(LatLng location, bool emitDrag) {
     mapController.move(location, mapController.zoom);
-    if (widget.onDrag != null) widget.onDrag!(location);
+    if (emitDrag && widget.onDrag != null)
+      widget.onDrag!(location);
   }
 
   void onLocationEvent(Position pos) {

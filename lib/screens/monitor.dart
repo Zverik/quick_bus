@@ -28,6 +28,8 @@ class MonitorPage extends StatefulWidget {
 
 class _MonitorPageState extends State<MonitorPage> {
   BusStop? nearestStop; // Stop nearest to map center
+  BusStop?
+      arrivalsStop; // Updated to nearestStop when needed to redraw arrivals
   List<Arrival> arrivals = []; // Arrivals for the nearest stop
   late LatLng location; // Map center location
   bool tracking = true; // Are we following GPS signal?
@@ -78,6 +80,8 @@ class _MonitorPageState extends State<MonitorPage> {
 
     setState(() {
       nearestStop = nextStop;
+      if (shouldUpdateArrivals)
+        arrivalsStop = nextStop;
     });
   }
 
@@ -124,8 +128,8 @@ class _MonitorPageState extends State<MonitorPage> {
                       tracking = true;
                       if (lastTrack != null) location = lastTrack!;
                     });
-                    stopMapController.setLocation(location);
-                    // updateNearestStops(context);
+                    stopMapController.setLocation(location, emitDrag: false);
+                    updateNearestStops(context);
                   },
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
@@ -151,7 +155,9 @@ class _MonitorPageState extends State<MonitorPage> {
                       updateNearestStops(context, shouldUpdateArrivals: false);
                     },
                     onDragEnd: (pos) {
-                      // context.refresh(arrivalsProvider(nearestStop));
+                      setState(() {
+                        arrivalsStop = nearestStop;
+                      });
                     },
                     onTrack: (pos) {
                       lastTrack = pos;
@@ -208,55 +214,12 @@ class _MonitorPageState extends State<MonitorPage> {
               },
             ),
             Expanded(
-              child: nearestStop == null
+              child: arrivalsStop == null
                   ? Center(
                       child: Text(AppLocalizations.of(context)!.noStopsNearby,
                           style: kArrivalsMessageStyle),
                     )
-                  : RefreshIndicator(
-                      onRefresh: () =>
-                          context.refresh(arrivalsProvider(nearestStop)),
-                      child: Consumer(
-                        builder: (context, watch, child) {
-                          final arrivalsValue =
-                              watch(arrivalsProvider(nearestStop));
-                          return arrivalsValue.when(
-                            data: (data) => data.isEmpty
-                                ? Center(
-                                    child: Text(
-                                        AppLocalizations.of(context)!
-                                            .noArrivals,
-                                        style: kArrivalsMessageStyle),
-                                  )
-                                : ArrivalsList(data),
-                            loading: () =>
-                                Center(child: CircularProgressIndicator()),
-                            error: (e, stackTrace) => Center(
-                              child: SingleChildScrollView(
-                                physics: AlwaysScrollableScrollPhysics(),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Text(
-                                        AppLocalizations.of(context)!
-                                            .arrivalsError,
-                                        textAlign: TextAlign.center,
-                                        style: kArrivalsMessageStyle),
-                                    SizedBox(height: 10.0),
-                                    Text(
-                                      e.toString(),
-                                      style: TextStyle(fontSize: 12.0),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                  : ArrivalsListContainer(arrivalsStop!)
             ),
           ];
 
@@ -265,6 +228,53 @@ class _MonitorPageState extends State<MonitorPage> {
                 ? Axis.vertical
                 : Axis.horizontal,
             children: children,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ArrivalsListContainer extends StatelessWidget {
+  final BusStop arrivalsStop;
+
+  ArrivalsListContainer(this.arrivalsStop);
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () => context.refresh(arrivalsProvider(arrivalsStop)),
+      child: Consumer(
+        builder: (context, watch, child) {
+          final arrivalsValue = watch(arrivalsProvider(arrivalsStop));
+          return arrivalsValue.when(
+            data: (data) => data.isEmpty
+                ? Center(
+                    child: Text(AppLocalizations.of(context)!.noArrivals,
+                        style: kArrivalsMessageStyle),
+                  )
+                : ArrivalsList(data),
+            loading: () => Center(child: CircularProgressIndicator()),
+            error: (e, stackTrace) => Center(
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(AppLocalizations.of(context)!.arrivalsError,
+                        textAlign: TextAlign.center,
+                        style: kArrivalsMessageStyle),
+                    SizedBox(height: 10.0),
+                    Text(
+                      e.toString(),
+                      style: TextStyle(fontSize: 12.0),
+                    )
+                  ],
+                ),
+              ),
+            ),
           );
         },
       ),

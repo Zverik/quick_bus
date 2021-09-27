@@ -89,7 +89,7 @@ class _AddBookmarkPageState extends State<AddBookmarkPage> {
                     this.emoji = emoji.emoji;
                   });
                 },
-                config: Config(
+                config: const Config(
                   showRecentsTab: false,
                   initCategory: Category.TRAVEL,
                 ),

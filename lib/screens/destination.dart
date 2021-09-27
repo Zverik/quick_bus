@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/providers/last_dest.dart';
 import 'package:quick_bus/screens/find_route.dart';
@@ -41,14 +42,15 @@ class _DestinationPageState extends State<DestinationPage> {
         title: Text(AppLocalizations.of(context)?.whereTo ?? 'Where to?'),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchPage(mapController.center),
-                  ));
+            onPressed: () async {
+              final pos = await Geolocator.getLastKnownPosition();
+              if (pos != null) {
+                final newPos = LatLng(pos.latitude, pos.longitude);
+                mapController.move(newPos, mapController.zoom);
+              }
             },
+            icon: const Icon(Icons.my_location),
+            tooltip: AppLocalizations.of(context)?.myLocation,
           ),
         ],
       ),

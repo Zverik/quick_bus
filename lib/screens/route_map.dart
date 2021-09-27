@@ -24,7 +24,7 @@ class _RoutePageState extends State<RoutePage> {
   Path? before;
   Path? after;
   int stopIndex = 0;
-  bool showLabels = false;
+  bool showLabels = true;
   final tf = DateFormat.Hm();
 
   @override
@@ -118,13 +118,13 @@ class _RoutePageState extends State<RoutePage> {
               if (before != null)
                 Polyline(
                   points: before!.coordinates,
-                  color: Colors.blue.shade800.withOpacity(0.4),
+                  color: Colors.blue.shade400.withOpacity(0.4),
                   strokeWidth: 3.0,
                 ),
               if (after != null)
                 Polyline(
                   points: after!.coordinates,
-                  color: Colors.blue.shade800.withOpacity(0.8),
+                  color: Colors.blue.shade800.withOpacity(0.9),
                   strokeWidth: 3.0,
                 ),
             ],
