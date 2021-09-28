@@ -2,7 +2,7 @@
 
 ## 1.0.5
 
-_Unreleased_
+_Released on 2021-09-27_
 
 - Arrivals are not updated when dragging a map now.
 - Emoji picker when adding a bookmark was resetting itself constantly when typing.
