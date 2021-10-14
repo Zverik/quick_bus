@@ -102,37 +102,42 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             .compareTo(b.scheduled.difference(arrival.scheduled).abs()));
         relevantArrivals = arrivalsList;
       }
-      setState(() {
-        this.arrival = relevantArrivals.first;
-      });
+      if (mounted) {
+        // Sometimes a siri query takes too long
+        setState(() {
+          this.arrival = relevantArrivals.first;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     prepareMessages(context);
-    final descPart =
-        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (arrival != null)
+    final descPart = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (arrival != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: ArrivalRow(arrival!, forceExactTime: true),
+          ),
         Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: ArrivalRow(arrival!, forceExactTime: true),
+          padding: EdgeInsets.only(
+            bottom: 10.0,
+            left: 15.0,
+            right: 10.0,
+            top: arrival != null ? 5.0 : 10.0,
+          ),
+          child: RichText(
+              text: TextSpan(
+                  style: DefaultTextStyle.of(context).style.copyWith(
+                        fontSize: 20.0,
+                      ),
+                  children: description)),
         ),
-      Padding(
-        padding: EdgeInsets.only(
-          bottom: 10.0,
-          left: 15.0,
-          right: 10.0,
-          top: arrival != null ? 5.0 : 10.0,
-        ),
-        child: RichText(
-            text: TextSpan(
-                style: DefaultTextStyle.of(context).style.copyWith(
-                      fontSize: 20.0,
-                    ),
-                children: description)),
-      )
-    ]);
+      ],
+    );
     final map = SizedBox(
       height: 200.0,
       child: FlutterMap(
@@ -202,7 +207,7 @@ class _ItineraryLegState extends State<ItineraryLeg> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: descPart),
-          ExcludeSemantics(child: Expanded(child: map))
+          Expanded(child: ExcludeSemantics(child: map))
         ],
       );
     }

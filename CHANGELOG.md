@@ -1,5 +1,17 @@
 # QuickBus Tallin Change Log
 
+## 1.1.0
+
+_Unreleased_
+
+- Updated Flutter to 2.5.2 and Dart to 2.14.3.
+- Support for Android 12.
+- Optional tutorial for the app.
+- Back to a magnifier icon for searching.
+- Reduced the number of last search queries shown.
+- Removed the redundant "coarse location" permission.
+- Fixed the landscape orientation for itineraries.
+
 ## 1.0.5
 
 _Released on 2021-09-27_

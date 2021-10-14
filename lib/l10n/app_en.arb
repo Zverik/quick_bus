@@ -261,5 +261,49 @@
   "commercialBus": "Commercial Bus",
   "@commercialBus": {
     "description": "Transit mode name."
+  },
+  "openTutorial": "Open the tutorial",
+  "@openTutorial": {
+    "description": "AppBar icon label for opening the tutorial."
+  },
+  "tMainScreen": "Main Screen",
+  "@tMainScreen": {
+    "description": "Title for the first tutorial page."
+  },
+  "bMainScreen": "Drag the map if you start at a different location, then consult the arrival times or tap any of the destination icons.",
+  "@bMainScreen": {
+    "description": "Description for the main screen tutorial page."
+  },
+  "msMap": "Map: starting point and the nearest stop",
+  "@msMap": {
+    "description": "Upper part of the main screen."
+  },
+  "msDestination": "Destination: bookmarks and search",
+  "@msDestination": {
+    "description": "Middle part of the main screen."
+  },
+  "msArrivals": "Arrivals for the nearest stop",
+  "@msArrivals": {
+    "description": "Lower part of the main screen."
+  },
+  "tBookmarks": "Bookmarks",
+  "@tBookmarks": {
+    "description": "Title for the second tutorial page."
+  },
+  "bBookmarks": "After choosing a familiar destination, save it by tapping \"+\". Choose an emoji and a name for your bookmark, to plan routes with a single tap.",
+  "@bBookmarks": {
+    "description": "Description for the bookmarks tutorial page."
+  },
+  "tSaveThePlan": "Save the Plan",
+  "@tSaveThePlan": {
+    "description": "Title for the third tutorial page."
+  },
+  "bSaveThePlan": "Having chosen a route, tap the icon to pin it to the main screen, so that you know where to go after leaving a bus.",
+  "@bSaveThePlan": {
+    "description": "Description for the plan tutorial page."
+  },
+  "tutorialDone": "Done",
+  "@tutorialDone": {
+    "description": "Button text for closing the tutorial."
   }
 }

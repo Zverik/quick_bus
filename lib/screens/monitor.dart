@@ -1,22 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/helpers/arrivals_cache.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bookmark.dart';
+import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
-import 'package:quick_bus/models/bus_stop.dart';
-import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/providers/stop_list.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:quick_bus/providers/tutorial_state.dart';
 import 'package:quick_bus/screens/itinerary.dart';
-import 'package:quick_bus/widgets/stop_map.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quick_bus/widgets/bookmark_row.dart';
+import 'package:quick_bus/screens/tutorial.dart';
 import 'package:quick_bus/widgets/arrivals.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:quick_bus/widgets/bookmark_row.dart';
+import 'package:quick_bus/widgets/stop_map.dart';
 
 class MonitorPage extends StatefulWidget {
   final LatLng? location;
@@ -80,8 +82,7 @@ class _MonitorPageState extends State<MonitorPage> {
 
     setState(() {
       nearestStop = nextStop;
-      if (shouldUpdateArrivals)
-        arrivalsStop = nextStop;
+      if (shouldUpdateArrivals) arrivalsStop = nextStop;
     });
   }
 
@@ -101,6 +102,22 @@ class _MonitorPageState extends State<MonitorPage> {
       appBar: AppBar(
         title: Text(kAppTitle),
         actions: [
+          Consumer(builder: (context, watch, child) {
+            final seenTutorial = watch(seenTutorialProvider);
+            if (seenTutorial)
+              return Container();
+            else
+              return IconButton(
+                icon: Icon(Icons.help),
+                tooltip: AppLocalizations.of(context)!.openTutorial,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TutorialPage()),
+                  );
+                },
+              );
+          }),
           Consumer(
             builder: (context, watch, child) {
               final plan = watch(savedPlanProvider);
@@ -214,13 +231,12 @@ class _MonitorPageState extends State<MonitorPage> {
               },
             ),
             Expanded(
-              child: arrivalsStop == null
-                  ? Center(
-                      child: Text(AppLocalizations.of(context)!.noStopsNearby,
-                          style: kArrivalsMessageStyle),
-                    )
-                  : ArrivalsListContainer(arrivalsStop!)
-            ),
+                child: arrivalsStop == null
+                    ? Center(
+                        child: Text(AppLocalizations.of(context)!.noStopsNearby,
+                            style: kArrivalsMessageStyle),
+                      )
+                    : ArrivalsListContainer(arrivalsStop!)),
           ];
 
           return Flex(

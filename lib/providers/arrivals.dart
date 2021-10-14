@@ -15,7 +15,7 @@ final arrivalsProvider = FutureProvider.autoDispose.family<List<Arrival>, BusSto
   if (cached != null) return cached;
 
   final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
-  print('Updating arrivals for $stopStr');
+  // print('Updating arrivals for $stopStr');
   List<Arrival> arrivals = const [];
   try {
     if (stop is SiriBusStop)

@@ -34,6 +34,8 @@ class SearchHistoryController extends StateNotifier<List<SavedQuery>> {
     final queries = await db.query(
       DatabaseHelper.QUERIES,
       columns: ['query', 'last_used'],
+      limit: kSearchHistoryLength,
+      orderBy: 'last_used desc',
     );
     state = [for (var q in queries) SavedQuery.fromJson(q)];
   }

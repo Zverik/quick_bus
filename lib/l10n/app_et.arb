@@ -42,5 +42,16 @@
   "train": "Rong",
   "ferry": "Laev",
   "regionalBus": "Piirkondlik buss",
-  "commercialBus": "Kommertsbuss"
+  "commercialBus": "Kommertsbuss",
+  "openTutorial": "Ava õpetus",
+  "tMainScreen": "Põhiekraan",
+  "bMainScreen": "Lohistage kaarti, kui alustate teisest kohast, seejärel vaadake saabumisaegu või puudutage mõnda sihtkohaikooni.",
+  "msMap": "Kaart: alguspunkt ja lähim peatus",
+  "msDestination": "Sihtkoht: järjehoidjad ja otsing",
+  "msArrivals": "Saabumised lähimasse peatusesse",
+  "tBookmarks": "Järjehoidjad",
+  "bBookmarks": "Pärast tuttava sihtkoha valimist salvestage see, puudutades nuppu\"+\". Valige järjehoidjale emotikon ja nimi, et planeerida marsruute ühe puudutusega.",
+  "tSaveThePlan": "Salvesta plaan",
+  "bSaveThePlan": "Pärast marsruudi valimist puudutage ikooni, et see põhiekraanile kinnitada, et saaksite pärast bussist lahkumist teada, kuhu minna.",
+  "tutorialDone": "Valmis"
 }
