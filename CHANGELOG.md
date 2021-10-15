@@ -12,6 +12,7 @@ _Unreleased_
 - Added "activities" tab for bookmark emoji.
 - Reduced the number of last search queries shown.
 - Removed the redundant "coarse location" permission.
+- Sometimes the arrivals list did not get updated after dragging the map.
 - Fixed the landscape orientation for itineraries.
 - **Known issue:** when looking at an itinerary, and a leg is hidden because of
   time passage, all maps are messed up. To fix it, bookmark the itinerary,

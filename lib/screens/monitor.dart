@@ -78,7 +78,8 @@ class _MonitorPageState extends State<MonitorPage> {
     List<BusStop> newStops =
         await stopList.findNearestStops(location, count: 1, maxDistance: 200);
     var nextStop = newStops.isEmpty ? null : newStops.first;
-    if (nextStop == nearestStop) return;
+    if (nextStop == nearestStop &&
+        (!shouldUpdateArrivals || arrivalsStop == nextStop)) return;
 
     setState(() {
       nearestStop = nextStop;
@@ -172,9 +173,7 @@ class _MonitorPageState extends State<MonitorPage> {
                       updateNearestStops(context, shouldUpdateArrivals: false);
                     },
                     onDragEnd: (pos) {
-                      setState(() {
-                        arrivalsStop = nearestStop;
-                      });
+                      forceUpdateNearestStops(context, pos, true);
                     },
                     onTrack: (pos) {
                       lastTrack = pos;

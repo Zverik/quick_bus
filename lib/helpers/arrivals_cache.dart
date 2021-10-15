@@ -1,19 +1,19 @@
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
+import 'package:quick_bus/constants.dart';
 
 class ArrivalsCacheItem {
   List<Arrival> arrivals;
   DateTime cachedOn;
 
   ArrivalsCacheItem(this.arrivals) : cachedOn = DateTime.now();
-  bool get isOld => cachedOn.add(Duration(seconds: 10)).isBefore(DateTime.now());
+  bool get isOld => cachedOn.add(kCacheArrivals).isBefore(DateTime.now());
 }
 
 class ArrivalsCache {
   Map<String, ArrivalsCacheItem> _cache = {};
 
   add(BusStop stop, List<Arrival> arrivals) {
-    // if (arrivals.isEmpty) return;
     _cache[stop.gtfsId] = ArrivalsCacheItem(arrivals);
   }
 
