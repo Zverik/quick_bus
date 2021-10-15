@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kAppTitle = 'Quick Bus Tallinn';
+const kAppTitle = 'Easy Transit Tallinn';
 const kDefaultLocation = <double>[59.42, 24.71];
 const kDatabaseName = 'quickbus.db';
 const kOTPEndpoint = 'otp.osmz.ru:8080';

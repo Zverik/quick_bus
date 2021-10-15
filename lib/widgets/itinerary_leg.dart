@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -72,6 +74,7 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             parseTaggedText(loc.rideTime(element.arrival, destination));
       }
     } else {
+      arrival = null;
       pathColor = Colors.black;
       pathDotted = true;
       final walkDistance = (widget.leg.distanceMeters / 100).round() * 100;
@@ -86,7 +89,13 @@ class _ItineraryLegState extends State<ItineraryLeg> {
     final stopList = context.read(stopsProvider);
     final stop = await stopList.resolveStop(arrival.stop);
     if (stop != null) {
-      final arrivals = await SiriHelper().getArrivals(stop);
+      List<Arrival> arrivals;
+      try {
+        arrivals = await SiriHelper().getArrivals(stop);
+      } on SocketException {
+        // It's okay to be rejected.
+        return;
+      }
       var properRoute =
           arrivals.where((element) => element.route == arrival.route);
       if (properRoute.isEmpty) return;

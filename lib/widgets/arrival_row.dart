@@ -28,7 +28,9 @@ class ArrivalRow extends StatelessWidget {
     String semantics = loc.arrivesText(
       '${first.route.mode.localizedName(context)} ${first.route.number}',
       first.route.headsign,
-      second == null ? firstTime : "$firstTime, ${loc.next(formatArrivalTime(context, second!))}",
+      second == null
+          ? firstTime
+          : "$firstTime, ${loc.next(formatArrivalTime(context, second!))}",
     );
     return Semantics(
       label: semantics,
@@ -57,21 +59,25 @@ class ArrivalRow extends StatelessWidget {
             Expanded(child: Container()),
             SizedBox(width: 10.0),
             Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    formatArrivalTime(context, first),
-                    style: TextStyle(fontSize: 20.0),
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  formatArrivalTime(context, first),
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: first.arrivesInSec < 0 ? Colors.red.shade700 : null,
                   ),
-                  if (second != null)
-                    Text(
-                      AppLocalizations.of(context)!.next(formatArrivalTime(context, second!)),
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.grey,
-                      ),
+                ),
+                if (second != null)
+                  Text(
+                    AppLocalizations.of(context)!.next(formatArrivalTime(context, second!)),
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      color: Colors.grey,
                     ),
-                ]),
+                  ),
+              ],
+            ),
           ]),
         ),
       ),

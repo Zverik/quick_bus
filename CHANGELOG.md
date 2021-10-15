@@ -1,16 +1,24 @@
-# QuickBus Tallin Change Log
+# Easy Transit Tallinn Change Log
 
 ## 1.1.0
 
 _Unreleased_
 
+- Renamed the app to "Easy Transit Tallinn".
 - Updated Flutter to 2.5.2 and Dart to 2.14.3.
 - Support for Android 12.
 - Optional tutorial for the app.
 - Back to a magnifier icon for searching.
+- Added "activities" tab for bookmark emoji.
 - Reduced the number of last search queries shown.
 - Removed the redundant "coarse location" permission.
 - Fixed the landscape orientation for itineraries.
+- **Known issue:** when looking at an itinerary, and a leg is hidden because of
+  time passage, all maps are messed up. To fix it, bookmark the itinerary,
+  and then reopen it from the main screen.
+- **Known issue:** occasionally some itineraries fail to scroll, with
+  out of memory errors logged. No idea yet what causes that — please
+  rely on partial maps and general route descriptions for these.
 
 ## 1.0.5
 
