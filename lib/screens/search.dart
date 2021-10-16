@@ -140,7 +140,7 @@ class _SearchPageState extends State<SearchPage> {
             borderRadius: BorderRadius.circular(5.0),
           ),
           child: TextField(
-            autofocus: true,
+            // autofocus: true,
             controller: controller,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
@@ -213,6 +213,7 @@ class _SearchPageState extends State<SearchPage> {
                             builder: (context) => FindRoutePage(
                               start: widget.start,
                               end: item.location!,
+                              title: item.title,
                             ),
                           ));
                     } else {
@@ -234,6 +235,7 @@ class _SearchPageState extends State<SearchPage> {
                               return DestinationPage(
                                 start: widget.start,
                                 destination: item.location,
+                                zoomCloser: true,
                               );
                             }));
                           },

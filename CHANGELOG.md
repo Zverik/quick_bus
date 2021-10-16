@@ -10,16 +10,22 @@ _Unreleased_
 - Optional tutorial for the app.
 - Back to a magnifier icon for searching.
 - Added "activities" tab for bookmark emoji.
+- Bookmark name is capitalized by default.
+- You can now change a bookmark by deleting it and adding again.
+- Disabled auto-focusing of the search input to prioritize last destinations.
 - Reduced the number of last search queries shown.
+- Search results keep their name when stored as last destinations.
+- When tapping a search result, its title is displayed on the next page.
+- Increased zoom level for map display of search results.
 - Removed the redundant "coarse location" permission.
 - Sometimes the arrivals list did not get updated after dragging the map.
+- Removed subdomains from OSM tile URLs to improve caching.
+- Map tiles are now cached to the internal memory.
 - Fixed the landscape orientation for itineraries.
-- **Known issue:** when looking at an itinerary, and a leg is hidden because of
-  time passage, all maps are messed up. To fix it, bookmark the itinerary,
-  and then reopen it from the main screen.
 - **Known issue:** occasionally some itineraries fail to scroll, with
   out of memory errors logged. No idea yet what causes that — please
   rely on partial maps and general route descriptions for these.
+  Currently observed on routes from Haabersti to "Pöhja öökull".
 
 ## 1.0.5
 

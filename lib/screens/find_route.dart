@@ -12,10 +12,11 @@ import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class FindRoutePage extends StatefulWidget {
   final Bookmark? bookmark;
+  final String? title;
   final LatLng start;
   final LatLng end;
 
-  const FindRoutePage({required this.start, required this.end, this.bookmark});
+  const FindRoutePage({required this.start, required this.end, this.bookmark, this.title});
 
   @override
   _FindRoutePageState createState() => _FindRoutePageState();
@@ -107,7 +108,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(bookmark?.name ?? loc.newDestination),
+        title: Text(bookmark?.name ?? widget.title ?? loc.newDestination),
       ),
       body: body,
       floatingActionButton: options == null || (bookmark != null && bookmark!.id == null)
@@ -146,7 +147,6 @@ class _FindRoutePageState extends State<FindRoutePage> {
                     );
                     if (result == OkCancelResult.ok) {
                       bookmarkHelper.removeBookmark(bookmark!);
-                      Navigator.pop(context);
                       setState(() {
                         bookmark = null;
                       });

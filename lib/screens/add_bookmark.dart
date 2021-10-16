@@ -57,12 +57,15 @@ class _AddBookmarkPageState extends State<AddBookmarkPage> {
                   Expanded(
                     child: TextField(
                       autofocus: true,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context)!.bookmarkName,
                       ),
                       style: TextStyle(
                         fontSize: 20.0,
                       ),
+                      // onChanged listener spews debug messages. It's okay.
+                      // See https://github.com/flutter/flutter/issues/9471
                       onChanged: (value) {
                         setState(() {
                           name = value;

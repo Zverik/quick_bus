@@ -23,9 +23,8 @@ class ItineraryPage extends StatefulWidget {
 class _ItineraryPageState extends State<ItineraryPage> {
   static final timeFormat = DateFormat.Hm();
   late StreamSubscription<Position> locSub;
-  late Timer updateTimer;
   LatLng? location;
-  final _startIndex = ValueNotifier<int>(0);
+  int startIndex = 0;
 
   @override
   void initState() {
@@ -38,26 +37,23 @@ class _ItineraryPageState extends State<ItineraryPage> {
         location = LatLng(pos.latitude, pos.longitude);
       });
     }, cancelOnError: true);
-    updateTimer = Timer.periodic(Duration(seconds: 20), (timer) {
-      // Just redraw the page to hide outdated itinerary legs.
-      _startIndex.value = calcStartIndex();
-    });
+    startIndex = calcStartIndex();
   }
 
   @override
   void dispose() {
     locSub.cancel();
-    updateTimer.cancel();
     super.dispose();
   }
 
   int calcStartIndex() {
     // Step N-1 if N's departure is less than kHide minutes ago, otherwise N.
-    var startIndex = widget.itinerary.indexWhere((element) =>
+    var start = widget.itinerary.indexWhere((element) =>
         element.departure.isAfter(DateTime.now()
             .subtract(Duration(minutes: kHideItineraryLegAfter))));
     // -1 if not found, that is, the entire itinerary is in the past.
-    return startIndex == 0 ? 0 : startIndex < 0 ? widget.itinerary.length - 1 : startIndex - 1;
+    if (start < 0) start = widget.itinerary.length;
+    return start == 0 ? 0 : start - 1;
   }
 
   @override
@@ -91,16 +87,13 @@ class _ItineraryPageState extends State<ItineraryPage> {
         ],
       ),
       body: OrientationBuilder(
-        builder: (context, orientation) => ValueListenableBuilder<int>(
-          valueListenable: _startIndex,
-          builder: (context, startIndex, child) => ListView.separated(
-            itemCount: widget.itinerary.length - startIndex,
-            separatorBuilder: (context, index) => SizedBox(height: 5.0),
-            itemBuilder: (context, index) => ItineraryLeg(
-              widget.itinerary[index + startIndex],
-              orientation: orientation,
-              location: location,
-            ),
+        builder: (context, orientation) => ListView.separated(
+          itemCount: widget.itinerary.length - startIndex,
+          separatorBuilder: (context, index) => SizedBox(height: 5.0),
+          itemBuilder: (context, index) => ItineraryLeg(
+            widget.itinerary[index + startIndex],
+            orientation: orientation,
+            location: location,
           ),
         ),
       ),

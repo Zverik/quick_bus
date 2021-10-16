@@ -64,7 +64,8 @@ class LastDestinations extends StateNotifier<List<StoredDestination>> {
       _addDestination(dest);
     }
     state = newList;
-    findName(dest);
+    if (name == null)
+      findName(dest);
   }
 
   used(StoredDestination dest) {

@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/equirectangular.dart';
+import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -146,16 +147,7 @@ class _StopMapState extends State<StopMap> {
         interactiveFlags: InteractiveFlag.drag | InteractiveFlag.pinchZoom,
       ),
       layers: [
-        TileLayerOptions(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          attributionBuilder: !showAttribution
-              ? null
-              : (context) => Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text('© OpenStreetMap contributors'),
-              ),
-        ),
+        buildTileLayerOptions(showAttribution),
         CircleLayerOptions(
           circles: [
             if (trackLocation != null)

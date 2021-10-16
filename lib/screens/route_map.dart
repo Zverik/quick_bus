@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:quick_bus/helpers/route_query.dart';
+import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:latlong2/latlong.dart';
@@ -109,10 +110,7 @@ class _RoutePageState extends State<RoutePage> {
           interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
         ),
         layers: [
-          TileLayerOptions(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
-          ),
+          buildTileLayerOptions(),
           PolylineLayerOptions(
             polylines: [
               if (before != null)

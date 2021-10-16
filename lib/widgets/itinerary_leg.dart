@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:quick_bus/helpers/siri.dart';
@@ -157,14 +158,10 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             ),
             minZoom: 10.0,
             maxZoom: 18.0,
-            // interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
             allowPanningOnScrollingParent: false,
           ),
           layers: [
-            TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
-            ),
+            buildTileLayerOptions(false),
             CircleLayerOptions(
               circles: [
                 if (widget.location != null)
