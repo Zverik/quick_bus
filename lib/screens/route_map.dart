@@ -50,7 +50,6 @@ class _RoutePageState extends State<RoutePage> {
 
   List<Path?> splitAtStop(Path path, LatLng point) {
     // Always returns a list of two elements: before the stop and after the stop.
-    // TODO: split geometry and stop lists at widget.arrival.stop.
     var dist = DistanceEquirectangular();
     LatLng closestPoint = path.coordinates
         .reduce((a, b) => dist(a, point) < dist(b, point) ? a : b);

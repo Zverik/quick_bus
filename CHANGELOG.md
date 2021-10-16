@@ -2,7 +2,7 @@
 
 ## 1.1.0
 
-_Unreleased_
+_Released on 2021-10-16_
 
 - Renamed the app to "Easy Transit Tallinn".
 - Updated Flutter to 2.5.2 and Dart to 2.14.3.

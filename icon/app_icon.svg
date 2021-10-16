@@ -314,9 +314,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="368.29197"
-     inkscape:cy="962.53935"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="306.75796"
+     inkscape:cy="282.22353"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -507,7 +507,7 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <rect
-       style="color:#000000;overflow:visible;fill:#00e1b4;fill-opacity:1;stroke:none;stroke-width:0.14693;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="color:#000000;overflow:visible;fill:#00cda4;fill-opacity:1;stroke:none;stroke-width:0.14693;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3014"
        width="148.683"
        height="72.599121"
@@ -536,7 +536,7 @@
          id="tspan3128"
          x="94.105598"
          y="50.158318"
-         style="font-size:8.46667px;stroke-width:0.1">QuickBus Tallinn</tspan></text>
+         style="font-size:8.46667px;stroke-width:0.1">Easy Transit Tallinn</tspan></text>
     <text
        xml:space="preserve"
        id="text3136"
