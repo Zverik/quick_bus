@@ -1,5 +1,17 @@
 # Easy Transit Tallinn Change Log
 
+## 1.1.1
+
+_Released on 2021-10-27_
+
+- Enabled the search autocompletion.
+- Arrivals list sometimes was not updated when following GPS location.
+- Clarified the message when there are no stops around.
+- "Delete bookmark" floating button was moved to the app bar.
+- Added a button to reverse a route.
+- Added a fourth tutorial page on changing a starting location.
+- Updates the stops file (should be done for each release, but I forgot).
+
 ## 1.1.0
 
 _Released on 2021-10-16_

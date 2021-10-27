@@ -184,7 +184,7 @@
       }
     }
   },
-  "noStopsNearby": "No stops nearby.",
+  "noStopsNearby": "Please find a stop or move the map to see arrival times.",
   "@noStopsNearby": {
     "description": "Message on an arrivals panel when there is no active stop."
   },
@@ -221,6 +221,14 @@
         "example": "Home"
       }
     }
+  },
+  "reverseRoute": "Reverse route",
+  "@reverseRoute": {
+    "description": "Tooltip text for an icon to reverse a route."
+  },
+  "routeBack": "Route back",
+  "@routeBack": {
+    "description": "Title of a route after pressing the 'reverse' button."
   },
   "delete": "Delete",
   "@delete": {
@@ -301,6 +309,14 @@
   "bSaveThePlan": "Having chosen a route, tap the icon to pin it to the main screen, so that you know where to go after leaving a bus.",
   "@bSaveThePlan": {
     "description": "Description for the plan tutorial page."
+  },
+  "tFriendRoute": "Help a Friend",
+  "@tFriendRoute": {
+    "description": "Title for the fourth tutorial page."
+  },
+  "bFriendRoute": "To plan a route from a saved location, long-press a bookmark and drag it onto the map. The pin bookmark is where you are. Alternatively, build a route to your friend and reverse it towards you.",
+  "@bFriendRoute": {
+    "description": "Description for the friend route page."
   },
   "tutorialDone": "Done",
   "@tutorialDone": {

@@ -68,6 +68,18 @@ class TutorialPage extends StatelessWidget {
                   Image.asset('assets/tutorial_saved_plan.png', height: 716.0)),
           decoration: decoration,
         ),
+        PageViewModel(
+          title: loc.tFriendRoute,
+          bodyWidget: Text(
+            loc.bFriendRoute,
+            style: decoration.bodyTextStyle,
+            textAlign: TextAlign.start,
+          ),
+          image: Center(
+              child:
+              Image.asset('assets/tutorial_starting.png', height: 584.0)),
+          decoration: decoration,
+        ),
       ],
       isTopSafeArea: true,
       done: Text(

@@ -14,6 +14,7 @@ class QuickBusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: kAppTitle,
+      // debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

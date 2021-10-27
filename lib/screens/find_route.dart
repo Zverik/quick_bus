@@ -16,7 +16,8 @@ class FindRoutePage extends StatefulWidget {
   final LatLng start;
   final LatLng end;
 
-  const FindRoutePage({required this.start, required this.end, this.bookmark, this.title});
+  const FindRoutePage(
+      {required this.start, required this.end, this.bookmark, this.title});
 
   @override
   _FindRoutePageState createState() => _FindRoutePageState();
@@ -109,50 +110,69 @@ class _FindRoutePageState extends State<FindRoutePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(bookmark?.name ?? widget.title ?? loc.newDestination),
+        actions: [
+          if (bookmark?.id != null)
+            IconButton(
+              icon: Icon(Icons.delete),
+              tooltip: AppLocalizations.of(context)?.deleteBookmark(bookmark?.name ?? ""),
+              onPressed: () async {
+                var bookmarkHelper = context.read(bookmarkProvider.notifier);
+                OkCancelResult result = await showOkCancelAlertDialog(
+                  context: context,
+                  title: '${loc.delete}?',
+                  message: loc.deleteBookmark(bookmark!.name),
+                  okLabel: loc.delete,
+                );
+                if (result == OkCancelResult.ok) {
+                  bookmarkHelper.removeBookmark(bookmark!);
+                  setState(() {
+                    bookmark = null;
+                  });
+                }
+              },
+            ),
+          IconButton(
+            icon: Icon(Icons.swap_horiz),
+            tooltip: AppLocalizations.of(context)?.reverseRoute,
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FindRoutePage(
+                      start: widget.end,
+                      end: widget.start,
+                      bookmark: Bookmark(
+                        name: AppLocalizations.of(context)!.routeBack,
+                        location: widget.end,
+                        emoji: 'X',
+                      ),
+                    ),
+                  ));
+            },
+          ),
+        ],
       ),
       body: body,
-      floatingActionButton: options == null || (bookmark != null && bookmark!.id == null)
-          ? null
-          : bookmark == null
-              ? FloatingActionButton(
-                  child: Icon(Icons.add),
-                  tooltip: AppLocalizations.of(context)?.addBookmark,
-                  onPressed: () async {
-                    var bookmarkHelper =
-                        context.read(bookmarkProvider.notifier);
-                    Bookmark? result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddBookmarkPage(widget.end),
-                        ));
-                    if (result != null) {
-                      bookmarkHelper.addBookmark(result);
-                      setState(() {
-                        bookmark = result;
-                      });
-                    }
-                  },
-                )
-              : FloatingActionButton(
-                  child: Icon(Icons.delete),
-                  tooltip: AppLocalizations.of(context)?.deleteBookmark(""),
-                  onPressed: () async {
-                    var bookmarkHelper =
-                        context.read(bookmarkProvider.notifier);
-                    OkCancelResult result = await showOkCancelAlertDialog(
-                      context: context,
-                      title: '${loc.delete}?',
-                      message: loc.deleteBookmark(bookmark!.name),
-                      okLabel: loc.delete,
-                    );
-                    if (result == OkCancelResult.ok) {
-                      bookmarkHelper.removeBookmark(bookmark!);
-                      setState(() {
-                        bookmark = null;
-                      });
-                    }
-                  },
-                ),
+      floatingActionButton: options != null && bookmark == null
+          ? FloatingActionButton(
+              child: Icon(Icons.add),
+              tooltip: AppLocalizations.of(context)?.addBookmark,
+              onPressed: () async {
+                var bookmarkHelper = context.read(bookmarkProvider.notifier);
+                Bookmark? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddBookmarkPage(widget.end),
+                    ));
+                if (result != null) {
+                  bookmarkHelper.addBookmark(result);
+                  setState(() {
+                    bookmark = result;
+                  });
+                }
+              },
+            )
+          : null,
     );
   }
 }

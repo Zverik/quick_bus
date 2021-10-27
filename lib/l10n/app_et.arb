@@ -25,7 +25,7 @@
   "stops": "{stops,plural, =1{{stops} peatus}, =other{{stops} peatust}}",
   "rideStops": "Sõit {stops} <b>{destination}</b>.",
   "rideTime": "Sõida kuni kella {arrival} <b>{destination}</b>.",
-  "noStopsNearby": "Läheduses pole ühtegi peatust.",
+  "noStopsNearby": "Saabumisaegade vaatamiseks tulge peatusele lähemale või lohistage kaarti.",
   "noArrivals": "Täna pole saabujaid.",
   "arrivalsError": "Saabumise ajakava ei saanud värskendada.",
   "bookmarkTarget": "Lohistage siia, et alustada salvestatud kohast",
@@ -33,6 +33,8 @@
   "bookmarkName": "Järjehoidja nimi",
   "chooseEmoji": "Valige emotikon",
   "deleteBookmark": "Kas kustutada järjehoidja \"{name}\"?",
+  "reverseRoute": "Vastupidine marsruut",
+  "routeBack": "Marsruut tagasi",
   "delete": "Kustutada",
   "enableInternet": "Palun lülitage võrgule juurdepääs sisse, muidu ei saa ma marsruudi andmeid kätte.",
   "bus": "Buss",
@@ -53,5 +55,7 @@
   "bBookmarks": "Pärast tuttava sihtkoha valimist salvestage see, puudutades nuppu\"+\". Valige järjehoidjale emotikon ja nimi, et planeerida marsruute ühe puudutusega.",
   "tSaveThePlan": "Salvesta plaan",
   "bSaveThePlan": "Pärast marsruudi valimist puudutage ikooni, et see põhiekraanile kinnitada, et saaksite pärast bussist lahkumist teada, kuhu minna.",
+  "tFriendRoute": "Aidake sõpra",
+  "bFriendRoute": "Marsruudi kavandamiseks salvestatud asukohast vajutage järjehoidjal pikalt ja lohistage see kaardile. Nööpnõelaga järjehoidja on teie asukoht. Teise võimalusena koostage marsruut oma sõbrani ja pöörake see enda poole.",
   "tutorialDone": "Valmis"
 }

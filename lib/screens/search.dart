@@ -95,7 +95,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   doSearch(String q) async {
-    if (q.isEmpty) {
+    cancelAutocomplete();
+    if (q.length < 2) {
       geocoderResults = [];
       return;
     }
@@ -115,17 +116,21 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   autocompleteSearch(String q) {
-    if (geocodeTimer != null) geocodeTimer!.cancel();
-    if (q.isEmpty) {
-      setState(() {
-        geocoderResults = [];
+    cancelAutocomplete();
+    // Start geocoding 1 second after last key was typed.
+    if (q.length >= 2) {
+      geocodeTimer = Timer(Duration(milliseconds: 1000), () {
+        geocodeTimer = null;
+        doSearch(q);
       });
-      return;
     }
-    geocodeTimer = Timer(Duration(milliseconds: 500), () async {
+  }
+
+  cancelAutocomplete() {
+    if (geocodeTimer != null) {
+      geocodeTimer!.cancel();
       geocodeTimer = null;
-      doSearch(q);
-    });
+    }
   }
 
   @override
@@ -171,6 +176,8 @@ class _SearchPageState extends State<SearchPage> {
               setState(() {
                 query = value;
               });
+              if (value.length > 1)
+                autocompleteSearch(value);
             },
           ),
         ),

@@ -74,6 +74,11 @@ class _MonitorPageState extends State<MonitorPage> {
 
   forceUpdateNearestStops(
       BuildContext context, LatLng location, bool shouldUpdateArrivals) async {
+    if (nearestStopTimer != null) {
+      nearestStopTimer!.cancel();
+      nearestStopTimer = null;
+    }
+    ;
     final stopList = context.read(stopsProvider);
     List<BusStop> newStops =
         await stopList.findNearestStops(location, count: 1, maxDistance: 200);
@@ -146,8 +151,8 @@ class _MonitorPageState extends State<MonitorPage> {
                       tracking = true;
                       if (lastTrack != null) location = lastTrack!;
                     });
-                    stopMapController.setLocation(location, emitDrag: false);
-                    updateNearestStops(context);
+                    stopMapController.setLocation(lastTrack!, emitDrag: false);
+                    forceUpdateNearestStops(context, lastTrack!, true);
                   },
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
@@ -181,7 +186,7 @@ class _MonitorPageState extends State<MonitorPage> {
                         setState(() {
                           location = pos;
                         });
-                        updateNearestStops(context);
+                        forceUpdateNearestStops(context, pos, true);
                       }
                     },
                   ),
@@ -231,10 +236,16 @@ class _MonitorPageState extends State<MonitorPage> {
             ),
             Expanded(
                 child: arrivalsStop == null
-                    ? Center(
-                        child: Text(AppLocalizations.of(context)!.noStopsNearby,
-                            style: kArrivalsMessageStyle),
-                      )
+                    ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.noStopsNearby,
+                            style: kArrivalsMessageStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                    )
                     : ArrivalsListContainer(arrivalsStop!)),
           ];
 
