@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:quick_bus/helpers/bus_locations.dart';
 import 'package:quick_bus/helpers/route_query.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/equirectangular.dart';
+import 'package:quick_bus/helpers/path_utils.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_gen/gen_l10n/l10n.dart';
@@ -20,24 +24,37 @@ class RoutePage extends StatefulWidget {
 }
 
 class _RoutePageState extends State<RoutePage> {
+  static const kBusMarkerSize = 16.0;
   PatternData? route;
   String? errorMessage;
   Path? before;
   Path? after;
   int stopIndex = 0;
-  bool showLabels = true;
+  bool showLabels = false;
   final tf = DateFormat.Hm();
+  late Timer locationsTimer;
+  List<BusLocation> locations = const [];
 
   @override
   void initState() {
     super.initState();
-    loadRoute();
+    loadRoute().then((_) => updateLocations());
+    locationsTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      updateLocations();
+    });
   }
 
-  void loadRoute() async {
+  @override
+  void dispose() {
+    locationsTimer.cancel();
+    super.dispose();
+  }
+
+  Future loadRoute() async {
     try {
       route = await RouteQuery().getRouteGeometry(widget.arrival);
-      var paths = splitAtStop(route!.geometry, widget.arrival.stop.location);
+      var paths =
+          PathUtils().splitAt(route!.geometry, widget.arrival.stop.location);
       before = paths.first;
       after = paths.last;
       stopIndex =
@@ -48,20 +65,20 @@ class _RoutePageState extends State<RoutePage> {
     setState(() {});
   }
 
-  List<Path?> splitAtStop(Path path, LatLng point) {
-    // Always returns a list of two elements: before the stop and after the stop.
-    var dist = DistanceEquirectangular();
-    LatLng closestPoint = path.coordinates
-        .reduce((a, b) => dist(a, point) < dist(b, point) ? a : b);
-    int cutIndex = path.coordinates.indexOf(closestPoint);
-    return [
-      cutIndex == 0
-          ? null
-          : Path.from(path.coordinates.sublist(0, cutIndex + 1)),
-      cutIndex == path.coordinates.length
-          ? path
-          : Path.from(path.coordinates.sublist(cutIndex)),
-    ];
+  updateLocations() async {
+    var newLoc = await BusLocations().getLocations(widget.arrival.route);
+    if (before != null && PathUtils().fastLength(before!) > 300) {
+      // Filter by proximity to "before" path
+      final helper = PathUtils();
+      newLoc = newLoc
+          .where((element) => helper.distance(element.location, before!) < 200)
+          .toList();
+    }
+    if (mounted) {
+      setState(() {
+        locations = newLoc;
+      });
+    }
   }
 
   int findStop(List<BusStop> stops, BusStop stop) {
@@ -78,7 +95,8 @@ class _RoutePageState extends State<RoutePage> {
     Widget body;
     if (errorMessage != null) {
       body = Center(
-        child: Text(AppLocalizations.of(context)!.errorLoadingRoute(errorMessage!)),
+        child: Text(
+            AppLocalizations.of(context)!.errorLoadingRoute(errorMessage!)),
       );
     } else if (route == null) {
       body = Column(
@@ -99,11 +117,8 @@ class _RoutePageState extends State<RoutePage> {
     } else {
       body = FlutterMap(
         options: MapOptions(
-          bounds:
-              LatLngBounds.fromPoints((after ?? route!.geometry).coordinates),
-          boundsOptions: FitBoundsOptions(
-            padding: const EdgeInsets.all(25.0),
-          ),
+          center: widget.arrival.stop.location,
+          zoom: 13.0, // TODO: check that it looks good
           minZoom: 10.0,
           maxZoom: 18.0,
           interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
@@ -129,6 +144,42 @@ class _RoutePageState extends State<RoutePage> {
           for (var stop in route!.stops.sublist(stopIndex))
             // When we get times: copyWithName('${stop.stop.name} ${tf.format(stop.expected)}')
             StopWithLabelOptions(context, stop.stop, showLabel: showLabels),
+          MarkerLayerOptions(markers: [
+            for (var location in locations)
+              Marker(
+                point: location.location,
+                anchorPos: AnchorPos.exactly(Anchor(
+                  kBusMarkerSize / 2,
+                  kBusMarkerSize / 2,
+                )),
+                height: kBusMarkerSize,
+                width: kBusMarkerSize,
+                builder: (context) => Transform.rotate(
+                  angle: 3.1415925 / 180 * (location.direction + 45),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: location.route.mode.color,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(kBusMarkerSize / 2),
+                        bottomRight: Radius.circular(kBusMarkerSize / 2),
+                        bottomLeft: Radius.circular(kBusMarkerSize / 2),
+                      ),
+                    ),
+                    child: Transform.rotate(
+                      angle: 3.14159 / 180 * 45,
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: kBusMarkerSize / 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ]),
         ],
       );
     }

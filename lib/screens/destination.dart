@@ -6,7 +6,6 @@ import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/providers/last_dest.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quick_bus/screens/search.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class DestinationPage extends StatefulWidget {

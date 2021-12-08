@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quick_bus/constants.dart';
+import 'package:quick_bus/models/bus_stop.dart';
+import 'package:quick_bus/providers/arrivals.dart';
+import 'package:quick_bus/widgets/arrivals.dart';
+
+class ArrivalsListContainer extends StatelessWidget {
+  final BusStop arrivalsStop;
+
+  const ArrivalsListContainer(this.arrivalsStop);
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () => context.refresh(arrivalsProvider(arrivalsStop)),
+      child: Consumer(
+        builder: (context, watch, child) {
+          final arrivalsValue = watch(arrivalsProvider(arrivalsStop));
+          return arrivalsValue.when(
+            data: (data) {
+              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+                watch(arrivalsProviderCache(arrivalsStop)).state = data;
+              });
+              return data.isEmpty
+                  ? Center(
+                      child: Text(AppLocalizations.of(context)!.noArrivals,
+                          style: kArrivalsMessageStyle),
+                    )
+                  : ArrivalsList(data);
+            },
+            loading: () {
+              final cached = watch(arrivalsProviderCache(arrivalsStop)).state;
+              if (cached.isNotEmpty) return ArrivalsList(cached);
+              return Center(child: CircularProgressIndicator());
+            },
+            error: (e, stackTrace) => Center(
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(AppLocalizations.of(context)!.arrivalsError,
+                        textAlign: TextAlign.center,
+                        style: kArrivalsMessageStyle),
+                    SizedBox(height: 10.0),
+                    Text(
+                      e.toString(),
+                      style: TextStyle(fontSize: 12.0),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

@@ -94,6 +94,11 @@ class _ItineraryPageState extends State<ItineraryPage> {
             widget.itinerary[index + startIndex],
             orientation: orientation,
             location: location,
+            lastLeg:
+                index == 0 ? null : widget.itinerary[index + startIndex - 1],
+            nextLeg: index + startIndex + 1 >= widget.itinerary.length
+                ? null
+                : widget.itinerary[index + startIndex + 1],
           ),
         ),
       ),

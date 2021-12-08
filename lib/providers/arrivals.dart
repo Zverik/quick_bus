@@ -9,12 +9,13 @@ import 'package:quick_bus/models/bus_stop.dart';
 
 final _arrivalsCache = ArrivalsCache();
 
-final arrivalsProvider = FutureProvider.autoDispose.family<List<Arrival>, BusStop?>((ref, stop) async {
+final arrivalsProvider = FutureProvider.autoDispose
+    .family<List<Arrival>, BusStop?>((ref, stop) async {
   if (stop == null) return [];
   final cached = _arrivalsCache.find(stop);
   if (cached != null) return cached;
 
-  final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
+  // final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
   // print('Updating arrivals for $stopStr');
   List<Arrival> arrivals = const [];
   try {
@@ -31,6 +32,10 @@ final arrivalsProvider = FutureProvider.autoDispose.family<List<Arrival>, BusSto
   _arrivalsCache.add(stop, arrivals);
   return arrivals;
 });
+
+// Taking a hint from https://github.com/rrousselGit/river_pod/issues/461#issuecomment-825837140
+final arrivalsProviderCache =
+    StateProvider.autoDispose.family<List<Arrival>, BusStop>((_, stop) => []);
 
 class ArrivalFetchError extends Error {
   final String message;

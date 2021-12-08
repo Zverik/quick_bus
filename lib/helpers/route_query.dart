@@ -70,7 +70,6 @@ class RouteQuery {
       'fromPlace': '${from.latitude},${from.longitude}',
       'toPlace': '${to.latitude},${to.longitude}',
       'mode': 'TRANSIT,WALK',
-      'maxWalkDistance': '500',
       'showIntermediateStops': 'true',
       if (kPlanBefore.inSeconds > 0) ...{
         'time': timeFormat.format(planBeforeDate),
@@ -95,6 +94,12 @@ class RouteQuery {
       for (var itinerary in data['plan']['itineraries'])
         [for (var leg in itinerary['legs']) RouteElement.fromJson(leg)]
     ];
+
+    // If the first one is walk-only and there are others, filter it out.
+    if (routes.length > 1 && routes.first.length == 1 && routes.first.first is WalkRouteElement) {
+      if (routes[0].last.arrival.isAfter(routes[1].last.arrival))
+        routes.removeAt(0);
+    }
 
     // Filter out regional routes if needed
     final cityRoutes = routes.where((route) => isCityRoute(route)).toList();

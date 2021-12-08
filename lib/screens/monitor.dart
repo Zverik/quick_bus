@@ -16,7 +16,7 @@ import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/providers/tutorial_state.dart';
 import 'package:quick_bus/screens/itinerary.dart';
 import 'package:quick_bus/screens/tutorial.dart';
-import 'package:quick_bus/widgets/arrivals.dart';
+import 'package:quick_bus/widgets/arrivals_list.dart';
 import 'package:quick_bus/widgets/bookmark_row.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 
@@ -78,7 +78,6 @@ class _MonitorPageState extends State<MonitorPage> {
       nearestStopTimer!.cancel();
       nearestStopTimer = null;
     }
-    ;
     final stopList = context.read(stopsProvider);
     List<BusStop> newStops =
         await stopList.findNearestStops(location, count: 1, maxDistance: 200);
@@ -237,15 +236,15 @@ class _MonitorPageState extends State<MonitorPage> {
             Expanded(
                 child: arrivalsStop == null
                     ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
                           child: Text(
                             AppLocalizations.of(context)!.noStopsNearby,
                             style: kArrivalsMessageStyle,
                             textAlign: TextAlign.center,
                           ),
                         ),
-                    )
+                      )
                     : ArrivalsListContainer(arrivalsStop!)),
           ];
 
@@ -254,53 +253,6 @@ class _MonitorPageState extends State<MonitorPage> {
                 ? Axis.vertical
                 : Axis.horizontal,
             children: children,
-          );
-        },
-      ),
-    );
-  }
-}
-
-class ArrivalsListContainer extends StatelessWidget {
-  final BusStop arrivalsStop;
-
-  ArrivalsListContainer(this.arrivalsStop);
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => context.refresh(arrivalsProvider(arrivalsStop)),
-      child: Consumer(
-        builder: (context, watch, child) {
-          final arrivalsValue = watch(arrivalsProvider(arrivalsStop));
-          return arrivalsValue.when(
-            data: (data) => data.isEmpty
-                ? Center(
-                    child: Text(AppLocalizations.of(context)!.noArrivals,
-                        style: kArrivalsMessageStyle),
-                  )
-                : ArrivalsList(data),
-            loading: () => Center(child: CircularProgressIndicator()),
-            error: (e, stackTrace) => Center(
-              child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(AppLocalizations.of(context)!.arrivalsError,
-                        textAlign: TextAlign.center,
-                        style: kArrivalsMessageStyle),
-                    SizedBox(height: 10.0),
-                    Text(
-                      e.toString(),
-                      style: TextStyle(fontSize: 12.0),
-                    )
-                  ],
-                ),
-              ),
-            ),
           );
         },
       ),

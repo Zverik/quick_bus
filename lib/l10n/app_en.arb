@@ -80,6 +80,13 @@
       }
     }
   },
+  "fullMinutes": "{value,plural, =1{{value} minute}, =few{{value} minutes}, =other{{value} minutes}}",
+  "@fullMinutes": {
+    "description": "Duration in minutes.",
+    "placeholders": {
+      "value": {}
+    }
+  },
   "walkMin": "Walk {min}",
   "@walkMin": {
     "description": "Accessibility text for walking N minutes.",
@@ -144,6 +151,26 @@
       }
     }
   },
+  "youGotTime": "You've got {minutes}.",
+  "@youGotTime": {
+    "description": "Comment about walking time.",
+    "placeholders": {
+      "minutes": {
+        "type": "String",
+        "example": "3 minutes"
+      }
+    }
+  },
+  "noHurry": "Don't hurry, you've got {minutes}.",
+  "@noHurry": {
+    "description": "Comment about walking time when the speed is very low.",
+    "placeholders": {
+      "minutes": {
+        "type": "String",
+        "example": "3 minutes"
+      }
+    }
+  },
   "walkDestination": "destination",
   "@walkDestination": {
     "description": "Generic name of a destination waypoint."
@@ -155,6 +182,24 @@
       "stops": {}
     }
   },
+  "waitAndRideStops": "Wait for {min} and ride {stops} to <b>{destination}</b>.",
+  "@waitAndRideStops": {
+    "description": "Itinerary text for riding a few stops after waiting.",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "3 min"
+      },
+      "stops": {
+        "type": "String",
+        "example": "2 stops"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Meistri"
+      }
+    }
+  },
   "rideStops": "Ride {stops} to <b>{destination}</b>.",
   "@rideStops": {
     "description": "Itinerary text for riding a few stops.",
@@ -162,6 +207,25 @@
       "stops": {
         "type": "String",
         "example": "2 stops"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Meistri"
+      }
+    }
+  },
+  "waitAndRideTime": "Wait {min} and ride until {arrival} to <b>{destination}</b>.",
+  "@waitAndRideTime": {
+    "description": "Itinerary text for riding until a specified time after waiting.",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "3 min"
+      },
+      "arrival": {
+        "type": "DateTime",
+        "format": "Hm",
+        "example": "18:44"
       },
       "destination": {
         "type": "String",

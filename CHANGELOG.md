@@ -1,5 +1,18 @@
 # Easy Transit Tallinn Change Log
 
+## 1.2.0
+
+_Unreleased_
+
+- Added live vehicle locations to a route map.
+- Route map is now zoomed on the current stop.
+- Disabled labels by default on the route overview map.
+- Not updating live arrivals for itineraries more than 15 minutes ahead.
+- Displaying waiting time at a stop.
+- Displaying walking time in a transfer.
+- Arrival list updates do not hide the old state.
+- Moved routing configuration to the server.
+
 ## 1.1.1
 
 _Released on 2021-10-27_

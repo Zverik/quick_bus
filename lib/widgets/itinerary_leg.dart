@@ -18,8 +18,11 @@ class ItineraryLeg extends StatefulWidget {
   final RouteElement leg;
   final bool isPortrait;
   final LatLng? location;
+  final RouteElement? lastLeg;
+  final RouteElement? nextLeg;
 
-  ItineraryLeg(this.leg, {Orientation? orientation, this.location})
+  ItineraryLeg(this.leg,
+      {Orientation? orientation, this.location, this.lastLeg, this.nextLeg})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   @override
@@ -67,26 +70,61 @@ class _ItineraryLegState extends State<ItineraryLeg> {
           element.path.last,
         ]);
       }
+      int? waitTimeMinutes;
+      if (arrival != null && widget.lastLeg is TransitRouteElement) {
+        waitTimeMinutes =
+        (element.departure.difference(widget.lastLeg!.arrival).inSeconds /
+            60)
+            .round();
+      }
       if (element.stopCount <= 3) {
-        description = parseTaggedText(
-            loc.rideStops(loc.stops(element.stopCount), destination));
+        if (waitTimeMinutes != null && waitTimeMinutes >= 1) {
+          description = parseTaggedText(
+              loc.waitAndRideStops(loc.fullMinutes(waitTimeMinutes), loc.stops(element.stopCount), destination));
+        } else {
+          description = parseTaggedText(
+              loc.rideStops(loc.stops(element.stopCount), destination));
+        }
       } else {
-        description =
-            parseTaggedText(loc.rideTime(element.arrival, destination));
+        if (waitTimeMinutes != null && waitTimeMinutes >= 1) {
+          description =
+              parseTaggedText(loc.waitAndRideTime(loc.fullMinutes(waitTimeMinutes), element.arrival, destination));
+        } else {
+          description =
+              parseTaggedText(loc.rideTime(element.arrival, destination));
+        }
       }
     } else {
       arrival = null;
       pathColor = Colors.black;
       pathDotted = true;
       final walkDistance = (widget.leg.distanceMeters / 100).round() * 100;
-      description = parseTaggedText(loc.walkMeters(walkDistance, destination));
+      String walkTime = '';
+      if (widget.lastLeg != null && widget.nextLeg is TransitRouteElement) {
+        final duration = widget.nextLeg!.departure
+            .difference(widget.leg.departure)
+            .inSeconds;
+        final speed = widget.leg.distanceMeters / duration * 3.6;
+        if (speed < 2.0) {
+          walkTime = ' ' + loc.noHurry(loc.fullMinutes((duration / 60).floor()));
+        } else {
+          walkTime = ' ' + loc.youGotTime(loc.fullMinutes((duration / 60).floor()));
+        }
+      }
+      description =
+          parseTaggedText(loc.walkMeters(walkDistance, destination) + walkTime);
     }
   }
 
   updateArrival(BuildContext context) async {
     const MAX_SCHEDULE_DRIFT = Duration(minutes: 2);
+    const MAX_DELAY = Duration(minutes: 4);
+    const ARRIVAL_WINDOW = Duration(minutes: 15);
+
     final arrival = this.arrival; // Make a copy to avoid null errors
     if (arrival == null) return;
+    if (arrival.scheduled.difference(DateTime.now()) > ARRIVAL_WINDOW) return;
+
     final stopList = context.read(stopsProvider);
     final stop = await stopList.resolveStop(arrival.stop);
     if (stop != null) {
@@ -100,9 +138,13 @@ class _ItineraryLegState extends State<ItineraryLeg> {
       var properRoute =
           arrivals.where((element) => element.route == arrival.route);
       if (properRoute.isEmpty) return;
+
+      // Both the time should be inside 2 minutes from scheduled time,
+      // and expected time should not be too much different.
       var relevantArrivals = properRoute.where((element) =>
           element.scheduled.difference(arrival.scheduled).abs() <=
-          MAX_SCHEDULE_DRIFT);
+              MAX_SCHEDULE_DRIFT &&
+          element.scheduled.difference(element.expected).abs() <= MAX_DELAY);
       if (relevantArrivals.isEmpty) return;
       if (relevantArrivals.length > 1) {
         final arrivalsList = relevantArrivals.toList();
@@ -112,6 +154,7 @@ class _ItineraryLegState extends State<ItineraryLeg> {
             .compareTo(b.scheduled.difference(arrival.scheduled).abs()));
         relevantArrivals = arrivalsList;
       }
+
       if (mounted) {
         // Sometimes a siri query takes too long
         setState(() {
