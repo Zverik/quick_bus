@@ -2,7 +2,7 @@
 
 ## 1.2.0
 
-_Unreleased_
+_Released on 2021-12-08_
 
 - Added live vehicle locations to a route map.
 - Route map is now zoomed on the current stop.
