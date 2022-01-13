@@ -1,5 +1,12 @@
 # Easy Transit Tallinn Change Log
 
+## 1.2.1
+
+_Unreleased_
+
+- Added a safe area so that a phone's notch does not obscure important text.
+- Updated stops.
+
 ## 1.2.0
 
 _Released on 2021-12-08_

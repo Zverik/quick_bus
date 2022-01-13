@@ -248,11 +248,16 @@ class _MonitorPageState extends State<MonitorPage> {
                     : ArrivalsListContainer(arrivalsStop!)),
           ];
 
-          return Flex(
-            direction: orientation == Orientation.portrait
-                ? Axis.vertical
-                : Axis.horizontal,
-            children: children,
+          return SafeArea(
+            top: false,
+            bottom: false,
+            left: false,
+            child: Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: children,
+            ),
           );
         },
       ),

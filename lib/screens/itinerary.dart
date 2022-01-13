@@ -48,8 +48,8 @@ class _ItineraryPageState extends State<ItineraryPage> {
 
   int calcStartIndex() {
     // Step N-1 if N's departure is less than kHide minutes ago, otherwise N.
-    var start = widget.itinerary.indexWhere((element) =>
-        element.departure.isAfter(DateTime.now()
+    var start = widget.itinerary.indexWhere((element) => element.departure
+        .isAfter(DateTime.now()
             .subtract(Duration(minutes: kHideItineraryLegAfter))));
     // -1 if not found, that is, the entire itinerary is in the past.
     if (start < 0) start = widget.itinerary.length;
@@ -86,19 +86,24 @@ class _ItineraryPageState extends State<ItineraryPage> {
           ),
         ],
       ),
-      body: OrientationBuilder(
-        builder: (context, orientation) => ListView.separated(
-          itemCount: widget.itinerary.length - startIndex,
-          separatorBuilder: (context, index) => SizedBox(height: 5.0),
-          itemBuilder: (context, index) => ItineraryLeg(
-            widget.itinerary[index + startIndex],
-            orientation: orientation,
-            location: location,
-            lastLeg:
-                index == 0 ? null : widget.itinerary[index + startIndex - 1],
-            nextLeg: index + startIndex + 1 >= widget.itinerary.length
-                ? null
-                : widget.itinerary[index + startIndex + 1],
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        right: false,
+        child: OrientationBuilder(
+          builder: (context, orientation) => ListView.separated(
+            itemCount: widget.itinerary.length - startIndex,
+            separatorBuilder: (context, index) => SizedBox(height: 5.0),
+            itemBuilder: (context, index) => ItineraryLeg(
+              widget.itinerary[index + startIndex],
+              orientation: orientation,
+              location: location,
+              lastLeg:
+                  index == 0 ? null : widget.itinerary[index + startIndex - 1],
+              nextLeg: index + startIndex + 1 >= widget.itinerary.length
+                  ? null
+                  : widget.itinerary[index + startIndex + 1],
+            ),
           ),
         ),
       ),

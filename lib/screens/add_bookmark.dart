@@ -38,7 +38,9 @@ class _AddBookmarkPageState extends State<AddBookmarkPage> {
           ),
         ],
       ),
-      body: Container(
+      body: SafeArea(
+        top: false,
+        bottom: false,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [

@@ -114,7 +114,8 @@ class _FindRoutePageState extends State<FindRoutePage> {
           if (bookmark?.id != null)
             IconButton(
               icon: Icon(Icons.delete),
-              tooltip: AppLocalizations.of(context)?.deleteBookmark(bookmark?.name ?? ""),
+              tooltip: AppLocalizations.of(context)
+                  ?.deleteBookmark(bookmark?.name ?? ""),
               onPressed: () async {
                 var bookmarkHelper = context.read(bookmarkProvider.notifier);
                 OkCancelResult result = await showOkCancelAlertDialog(
@@ -152,7 +153,12 @@ class _FindRoutePageState extends State<FindRoutePage> {
           ),
         ],
       ),
-      body: body,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        right: false,
+        child: body,
+      ),
       floatingActionButton: options != null && bookmark == null
           ? FloatingActionButton(
               child: Icon(Icons.add),
