@@ -1,4 +1,4 @@
-# QuickBus Tallinn Privacy Policy
+# Easy Transit Tallinn Privacy Policy
 
 We don't store your data, period.
 

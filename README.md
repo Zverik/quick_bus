@@ -1,4 +1,4 @@
-# QuickBus Tallinn
+# Easy Transit Tallinn
 
 An app to instantly see arrival times for any public transport stop,
 and to plan transit routes with a single tap.
