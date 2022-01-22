@@ -21,6 +21,7 @@ class ArrivalsList extends StatelessWidget {
     if (arrivals.isEmpty) return [];
     var byRoute = <TransitRoute, ArrivalDisplayedItem>{};
     for (var arrival in arrivals) {
+      if (arrival.arrivesInSec < 0) continue;
       if (!byRoute.containsKey(arrival.route))
         byRoute[arrival.route] = ArrivalDisplayedItem(arrival);
       else {

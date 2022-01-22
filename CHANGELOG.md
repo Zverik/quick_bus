@@ -1,8 +1,14 @@
 # Easy Transit Tallinn Change Log
 
+## 1.2.2
+
+_Released for Android on 2021-01-22_
+
+- Hiding obsolete arrival entries on the main screen.
+
 ## 1.2.1
 
-_Unreleased_
+_Released for iOS on 2021-01-16_
 
 - Added a safe area so that a phone's notch does not obscure important text.
 - Updated stops.
