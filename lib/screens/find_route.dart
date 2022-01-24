@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
-class FindRoutePage extends StatefulWidget {
+class FindRoutePage extends ConsumerStatefulWidget {
   final Bookmark? bookmark;
   final String? title;
   final LatLng start;
@@ -23,7 +23,7 @@ class FindRoutePage extends StatefulWidget {
   _FindRoutePageState createState() => _FindRoutePageState();
 }
 
-class _FindRoutePageState extends State<FindRoutePage> {
+class _FindRoutePageState extends ConsumerState<FindRoutePage> {
   List<List<RouteElement>>? options;
   String? errorMessage;
   Bookmark? bookmark;
@@ -117,7 +117,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
               tooltip: AppLocalizations.of(context)
                   ?.deleteBookmark(bookmark?.name ?? ""),
               onPressed: () async {
-                var bookmarkHelper = context.read(bookmarkProvider.notifier);
+                var bookmarkHelper = ref.read(bookmarkProvider.notifier);
                 OkCancelResult result = await showOkCancelAlertDialog(
                   context: context,
                   title: '${loc.delete}?',
@@ -161,10 +161,10 @@ class _FindRoutePageState extends State<FindRoutePage> {
       ),
       floatingActionButton: options != null && bookmark == null
           ? FloatingActionButton(
-              child: Icon(Icons.add),
+              child: Icon(Icons.bookmark),
               tooltip: AppLocalizations.of(context)?.addBookmark,
               onPressed: () async {
-                var bookmarkHelper = context.read(bookmarkProvider.notifier);
+                var bookmarkHelper = ref.read(bookmarkProvider.notifier);
                 Bookmark? result = await Navigator.push(
                     context,
                     MaterialPageRoute(

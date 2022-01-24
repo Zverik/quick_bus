@@ -1,5 +1,16 @@
 # Easy Transit Tallinn Change Log
 
+## 1.3.0
+
+_Unreleased_
+
+- Breaking: a route always starts from the geolocation, not from the map center.
+- Removed the marker when dragging the map.
+- Bookmarks can no longer be dragged onto the map with a long tap.
+- Changed the icon for adding a bookmark.
+- Itinerary is printed in two columns on tablets.
+- Upgraded the Riverpod library.
+
 ## 1.2.2
 
 _Released for Android on 2021-01-22_

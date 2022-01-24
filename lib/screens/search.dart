@@ -11,7 +11,7 @@ import 'package:quick_bus/screens/destination.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerStatefulWidget {
   final LatLng start;
 
   SearchPage(this.start);
@@ -36,7 +36,7 @@ class SearchResult {
   });
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends ConsumerState<SearchPage> {
   List<SearchResult> results = [];
   List<SearchResult> geocoderResults = [];
   String query = '';
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
   final controller = TextEditingController();
   Timer? geocodeTimer;
 
-  List<SearchResult> updateResults(ScopedReader watch, String query) {
+  List<SearchResult> updateResults(String query) {
     if (query.isEmpty) {
       lastQuerySearchedForStops = query;
       results = [
@@ -54,11 +54,11 @@ class _SearchPageState extends State<SearchPage> {
           isMapItem: true,
         )
       ];
-      final searchHistory = watch(searchHistoryProvider);
+      final searchHistory = ref.watch(searchHistoryProvider);
       for (var entry in searchHistory) {
         results.add(SearchResult(icon: Icons.history, title: entry.query));
       }
-      final lastDest = watch(lastDestinationsProvider);
+      final lastDest = ref.watch(lastDestinationsProvider);
       for (var dest in lastDest) {
         results.add(SearchResult(
           icon: Icons.location_history_rounded,
@@ -72,7 +72,7 @@ class _SearchPageState extends State<SearchPage> {
         results = [];
       } else if (query != lastQuerySearchedForStops) {
         lastQuerySearchedForStops = query;
-        final stopList = watch(stopsProvider);
+        final stopList = ref.watch(stopsProvider);
         stopList
             .findStopsByName(query, around: widget.start, deduplicate: true)
             .then((stops) {
@@ -135,6 +135,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    updateResults(query);
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -166,8 +167,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             onSubmitted: (value) {
               if (value.isNotEmpty) {
-                final searchHistory =
-                    context.read(searchHistoryProvider.notifier);
+                final searchHistory = ref.read(searchHistoryProvider.notifier);
                 searchHistory.saveQuery(value);
               }
               doSearch(value);
@@ -176,81 +176,74 @@ class _SearchPageState extends State<SearchPage> {
               setState(() {
                 query = value;
               });
-              if (value.length > 1)
-                autocompleteSearch(value);
+              if (value.length > 1) autocompleteSearch(value);
             },
           ),
         ),
       ),
       body: SafeArea(
-        child: Consumer(
-          builder: (context, watch, child) {
-            updateResults(watch, query);
-            return ListView.separated(
-              itemCount: results.length + geocoderResults.length,
-              separatorBuilder: (context, index) => Divider(),
-              itemBuilder: (context, index) {
-                final item = index < results.length
-                    ? results[index]
-                    : geocoderResults[index - results.length];
-                return ListTile(
-                  leading: Icon(item.icon),
-                  title: Text(item.title),
-                  subtitle: item.address == null ? null : Text(item.address!),
-                  onTap: () {
-                    if (item.isMapItem) {
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) {
-                        final lastDestinations =
-                            context.read(lastDestinationsProvider);
-                        final destLoc = lastDestinations.isNotEmpty &&
-                                lastDestinations.first.isRecent
-                            ? lastDestinations.first.destination
-                            : widget.start;
-                        return DestinationPage(
-                            start: widget.start, destination: destLoc);
-                      }));
-                    } else if (item.location != null) {
-                      context
-                          .read(lastDestinationsProvider.notifier)
-                          .add(item.location!, item.title);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FindRoutePage(
-                              start: widget.start,
-                              end: item.location!,
-                              title: item.title,
-                            ),
-                          ));
-                    } else {
-                      // This is a historic query
-                      setState(() {
-                        query = item.title;
-                        controller.text = item.title;
-                        doSearch(item.title);
-                        FocusScope.of(context).unfocus();
-                      });
-                    }
-                  },
-                  trailing: item.location == null
-                      ? null
-                      : IconButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return DestinationPage(
-                                start: widget.start,
-                                destination: item.location,
-                                zoomCloser: true,
-                              );
-                            }));
-                          },
-                          icon: Icon(Icons.map_outlined),
-                          tooltip: AppLocalizations.of(context)?.showMap,
+        child: ListView.separated(
+          itemCount: results.length + geocoderResults.length,
+          separatorBuilder: (context, index) => Divider(),
+          itemBuilder: (context, index) {
+            final item = index < results.length
+                ? results[index]
+                : geocoderResults[index - results.length];
+            return ListTile(
+              leading: Icon(item.icon),
+              title: Text(item.title),
+              subtitle: item.address == null ? null : Text(item.address!),
+              onTap: () {
+                if (item.isMapItem) {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) {
+                    final lastDestinations = ref.read(lastDestinationsProvider);
+                    final destLoc = lastDestinations.isNotEmpty &&
+                            lastDestinations.first.isRecent
+                        ? lastDestinations.first.destination
+                        : widget.start;
+                    return DestinationPage(
+                        start: widget.start, destination: destLoc);
+                  }));
+                } else if (item.location != null) {
+                  ref
+                      .read(lastDestinationsProvider.notifier)
+                      .add(item.location!, item.title);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FindRoutePage(
+                          start: widget.start,
+                          end: item.location!,
+                          title: item.title,
                         ),
-                );
+                      ));
+                } else {
+                  // This is a historic query
+                  setState(() {
+                    query = item.title;
+                    controller.text = item.title;
+                    doSearch(item.title);
+                    FocusScope.of(context).unfocus();
+                  });
+                }
               },
+              trailing: item.location == null
+                  ? null
+                  : IconButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return DestinationPage(
+                            start: widget.start,
+                            destination: item.location,
+                            zoomCloser: true,
+                          );
+                        }));
+                      },
+                      icon: Icon(Icons.map_outlined),
+                      tooltip: AppLocalizations.of(context)?.showMap,
+                    ),
             );
           },
         ),

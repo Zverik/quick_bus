@@ -14,67 +14,49 @@ class BookmarkRow extends StatelessWidget {
   final LatLng? trackLocation;
   final bookmarkScrollController = ScrollController();
   final bool isPortrait;
-  final VoidCallback? onStartDrag;
-  final VoidCallback? onEndDrag;
 
   BookmarkRow(this.location, this.bookmarks,
-      {Orientation? orientation, this.onStartDrag, this.onEndDrag, this.trackLocation})
+      {Orientation? orientation, this.trackLocation})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   bool isFarEnough() {
-    if (trackLocation == null)
-      return false;
+    if (trackLocation == null) return false;
     final distance = DistanceEquirectangular();
     return distance(trackLocation!, location) > kRouteToSelfDistance;
   }
 
   @override
   Widget build(BuildContext context) {
-    final bookmarks = trackLocation != null && isFarEnough() ? [Bookmark(
-      name: AppLocalizations.of(context)!.myLocation,
-      location: trackLocation!,
-      emoji: '📍',
-    ), ...this.bookmarks] : this.bookmarks;
+    final bookmarks = trackLocation != null && isFarEnough()
+        ? [
+            Bookmark(
+              name: AppLocalizations.of(context)!.myLocation,
+              location: trackLocation!,
+              emoji: '📍',
+            ),
+            ...this.bookmarks
+          ]
+        : this.bookmarks;
     final bookmarkIcons = <Widget>[
       for (var bookmark in bookmarks)
-        LongPressDraggable<Bookmark>(
-          feedback: Text(
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FindRoutePage(
+                    start: location,
+                    end: bookmark.location,
+                    bookmark: bookmark,
+                  ),
+                ));
+          },
+          child: Text(
             bookmark.emoji,
+            semanticsLabel: bookmark.name,
             style: TextStyle(
               fontSize: 40.0,
               color: Theme.of(context).colorScheme.onPrimary,
-              decoration: TextDecoration.none, // to remove yellow double underline
-            ),
-          ),
-          data: bookmark,
-          maxSimultaneousDrags: 1,
-          onDragStarted: () {
-            if (onStartDrag != null)
-              onStartDrag!();
-          },
-          onDragEnd: (_) {
-            if (onEndDrag != null)
-              onEndDrag!();
-          },
-          child: TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FindRoutePage(
-                      start: location,
-                      end: bookmark.location,
-                      bookmark: bookmark,
-                    ),
-                  ));
-            },
-            child: Text(
-              bookmark.emoji,
-              semanticsLabel: bookmark.name,
-              style: TextStyle(
-                fontSize: 40.0,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
             ),
           ),
         ),

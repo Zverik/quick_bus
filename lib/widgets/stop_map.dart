@@ -19,7 +19,7 @@ class StopMapController {
   }
 }
 
-class StopMap extends StatefulWidget {
+class StopMap extends ConsumerStatefulWidget {
   final LatLng location;
   final bool track;
   final BusStop? chosenStop;
@@ -41,7 +41,7 @@ class StopMap extends StatefulWidget {
   _StopMapState createState() => _StopMapState();
 }
 
-class _StopMapState extends State<StopMap> {
+class _StopMapState extends ConsumerState<StopMap> {
   late final MapController mapController;
   late final StreamSubscription<MapEvent> mapSub;
   late final StreamSubscription<Position> locSub;
@@ -63,7 +63,7 @@ class _StopMapState extends State<StopMap> {
       desiredAccuracy: LocationAccuracy.high,
     ).listen(onLocationEvent, onError: onLocationError, cancelOnError: true);
     Future.delayed(Duration(milliseconds: 500), () {
-      updateNearestStops(context);
+      updateNearestStops();
     });
     Future.delayed(Duration(seconds: 9), () {
       if (showAttribution) {
@@ -76,7 +76,7 @@ class _StopMapState extends State<StopMap> {
 
   void onMapEvent(MapEvent event) {
     if (event is MapEventMove) {
-      updateNearestStops(context, event.targetCenter);
+      updateNearestStops(event.targetCenter);
       if (widget.onDrag != null && event.source != MapEventSource.mapController)
         widget.onDrag!(event.targetCenter);
     } else if (event is MapEventMoveEnd) {
@@ -116,7 +116,7 @@ class _StopMapState extends State<StopMap> {
     super.dispose();
   }
 
-  updateNearestStops(BuildContext context, [LatLng? around]) {
+  updateNearestStops([LatLng? around]) {
     if (around == null) around = widget.location;
     final distance = DistanceEquirectangular();
     if (lastNearestStopCheck != null &&
@@ -124,7 +124,7 @@ class _StopMapState extends State<StopMap> {
       return;
     lastNearestStopCheck = around;
 
-    final stopList = context.read(stopsProvider);
+    final stopList = ref.read(stopsProvider);
     stopList
         .findNearestStops(around, count: 10, maxDistance: 1000)
         .then((stops) {
@@ -162,7 +162,7 @@ class _StopMapState extends State<StopMap> {
         ),
         if (widget.chosenStop != null)
           StopWithLabelOptions(context, widget.chosenStop!),
-        if (!widget.track)
+        if (!widget.track && trackLocation == null)
           MarkerLayerOptions(
             markers: [
               Marker(

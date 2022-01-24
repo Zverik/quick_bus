@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/helpers/arrivals_cache.dart';
 import 'package:quick_bus/models/arrival.dart';
-import 'package:quick_bus/models/bookmark.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
@@ -20,7 +19,7 @@ import 'package:quick_bus/widgets/arrivals_list.dart';
 import 'package:quick_bus/widgets/bookmark_row.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 
-class MonitorPage extends StatefulWidget {
+class MonitorPage extends ConsumerStatefulWidget {
   final LatLng? location;
   MonitorPage({this.location});
 
@@ -28,7 +27,7 @@ class MonitorPage extends StatefulWidget {
   _MonitorPageState createState() => _MonitorPageState();
 }
 
-class _MonitorPageState extends State<MonitorPage> {
+class _MonitorPageState extends ConsumerState<MonitorPage> {
   BusStop? nearestStop; // Stop nearest to map center
   BusStop?
       arrivalsStop; // Updated to nearestStop when needed to redraw arrivals
@@ -46,7 +45,6 @@ class _MonitorPageState extends State<MonitorPage> {
   String?
       arrivalsUpdateError; // Error message for when arrivals querying failed
   final arrivalsCache = ArrivalsCache(); // To solve issues with arrivals
-  bool draggingBookmark = false; // Are we dragging a bookmark?
   final stopMapController =
       StopMapController(); // To force location change on the map
 
@@ -56,14 +54,9 @@ class _MonitorPageState extends State<MonitorPage> {
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
-      context.refresh(arrivalsProvider(nearestStop));
+      ref.refresh(arrivalsProvider(nearestStop));
     });
-
-    // Otherwise the context does not allow inheritance
-    // See https://stackoverflow.com/q/49457717
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      updateNearestStops(context);
-    });
+    updateNearestStops();
   }
 
   @override
@@ -72,13 +65,12 @@ class _MonitorPageState extends State<MonitorPage> {
     super.dispose();
   }
 
-  forceUpdateNearestStops(
-      BuildContext context, LatLng location, bool shouldUpdateArrivals) async {
+  forceUpdateNearestStops(LatLng location, bool shouldUpdateArrivals) async {
     if (nearestStopTimer != null) {
       nearestStopTimer!.cancel();
       nearestStopTimer = null;
     }
-    final stopList = context.read(stopsProvider);
+    final stopList = ref.read(stopsProvider);
     List<BusStop> newStops =
         await stopList.findNearestStops(location, count: 1, maxDistance: 200);
     var nextStop = newStops.isEmpty ? null : newStops.first;
@@ -91,57 +83,49 @@ class _MonitorPageState extends State<MonitorPage> {
     });
   }
 
-  updateNearestStops(BuildContext context, {bool shouldUpdateArrivals = true}) {
+  updateNearestStops({bool shouldUpdateArrivals = true}) {
     locationToUpdateForNearest = location;
     if (nearestStopTimer != null) return;
     nearestStopTimer = Timer(Duration(milliseconds: 300), () async {
       nearestStopTimer = null;
       forceUpdateNearestStops(
-          context, locationToUpdateForNearest!, shouldUpdateArrivals);
+          locationToUpdateForNearest!, shouldUpdateArrivals);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final seenTutorial = ref.watch(seenTutorialProvider);
+    final plan = ref.watch(savedPlanProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(kAppTitle),
         actions: [
-          Consumer(builder: (context, watch, child) {
-            final seenTutorial = watch(seenTutorialProvider);
-            if (seenTutorial)
-              return Container();
-            else
-              return IconButton(
-                icon: Icon(Icons.help),
-                tooltip: AppLocalizations.of(context)!.openTutorial,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => TutorialPage()),
-                  );
-                },
-              );
-          }),
-          Consumer(
-            builder: (context, watch, child) {
-              final plan = watch(savedPlanProvider);
-              if (!plan.isActive)
-                return Container();
-              else
-                return IconButton(
-                    icon: Icon(Icons.bookmark),
-                    tooltip: AppLocalizations.of(context)?.restorePlan,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ItineraryPage(plan.itinerary)),
-                      );
-                    });
-            },
-          ),
+          seenTutorial
+              ? Container()
+              : IconButton(
+                  icon: Icon(Icons.help),
+                  tooltip: AppLocalizations.of(context)!.openTutorial,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TutorialPage()),
+                    );
+                  },
+                ),
+          !plan.isActive
+              ? Container()
+              : IconButton(
+                  icon: Icon(Icons.bookmark),
+                  tooltip: AppLocalizations.of(context)?.restorePlan,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ItineraryPage(plan.itinerary)),
+                    );
+                  }),
           IconButton(
             onPressed: tracking
                 ? null
@@ -151,7 +135,7 @@ class _MonitorPageState extends State<MonitorPage> {
                       if (lastTrack != null) location = lastTrack!;
                     });
                     stopMapController.setLocation(lastTrack!, emitDrag: false);
-                    forceUpdateNearestStops(context, lastTrack!, true);
+                    forceUpdateNearestStops(lastTrack!, true);
                   },
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
@@ -174,10 +158,10 @@ class _MonitorPageState extends State<MonitorPage> {
                         tracking = false;
                         location = pos;
                       });
-                      updateNearestStops(context, shouldUpdateArrivals: false);
+                      updateNearestStops(shouldUpdateArrivals: false);
                     },
                     onDragEnd: (pos) {
-                      forceUpdateNearestStops(context, pos, true);
+                      forceUpdateNearestStops(pos, true);
                     },
                     onTrack: (pos) {
                       lastTrack = pos;
@@ -185,53 +169,18 @@ class _MonitorPageState extends State<MonitorPage> {
                         setState(() {
                           location = pos;
                         });
-                        forceUpdateNearestStops(context, pos, true);
+                        forceUpdateNearestStops(pos, true);
                       }
                     },
                   ),
-                  if (draggingBookmark)
-                    DragTarget<Bookmark>(
-                      builder: (context, cData, rData) => Container(
-                        color: Colors.white.withOpacity(0.7),
-                        child: Center(
-                          child: Text(
-                            AppLocalizations.of(context)!.bookmarkTarget,
-                            style: TextStyle(
-                              fontSize: 30.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade800,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      onAccept: (bookmark) {
-                        stopMapController.setLocation(bookmark.location);
-                      },
-                    ),
                 ],
               ),
             ),
-            Consumer(
-              builder: (context, watch, child) {
-                final bookmarks = watch(bookmarkProvider);
-                return BookmarkRow(
-                  location,
-                  bookmarks,
-                  trackLocation: lastTrack,
-                  orientation: orientation,
-                  onStartDrag: () {
-                    setState(() {
-                      draggingBookmark = true;
-                    });
-                  },
-                  onEndDrag: () {
-                    setState(() {
-                      draggingBookmark = false;
-                    });
-                  },
-                );
-              },
+            BookmarkRow(
+              lastTrack ?? location,
+              ref.watch(bookmarkProvider),
+              trackLocation: lastTrack,
+              orientation: orientation,
             ),
             Expanded(
                 child: arrivalsStop == null

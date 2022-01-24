@@ -11,7 +11,7 @@ import 'package:quick_bus/widgets/itinerary_leg.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:latlong2/latlong.dart';
 
-class ItineraryPage extends StatefulWidget {
+class ItineraryPage extends ConsumerStatefulWidget {
   final List<RouteElement> itinerary;
 
   ItineraryPage(this.itinerary);
@@ -20,7 +20,7 @@ class ItineraryPage extends StatefulWidget {
   _ItineraryPageState createState() => _ItineraryPageState();
 }
 
-class _ItineraryPageState extends State<ItineraryPage> {
+class _ItineraryPageState extends ConsumerState<ItineraryPage> {
   static final timeFormat = DateFormat.Hm();
   late StreamSubscription<Position> locSub;
   LatLng? location;
@@ -58,30 +58,27 @@ class _ItineraryPageState extends State<ItineraryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isWide = screenSize.width >= 600 || screenSize.width > screenSize.height;
+    final plan = ref.watch(savedPlanProvider).itinerary;
+    final isThisPlan = plan.length == widget.itinerary.length &&
+        widget.itinerary.first.departure == plan.first.departure &&
+        widget.itinerary.last.arrival == plan.last.arrival;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           '${timeFormat.format(widget.itinerary.first.departure)} — ${timeFormat.format(widget.itinerary.last.arrival)}',
         ),
         actions: [
-          Consumer(
-            builder: (context, watch, child) {
-              final plan = watch(savedPlanProvider).itinerary;
-              final isThisPlan = plan.length == widget.itinerary.length &&
-                  widget.itinerary.first.departure == plan.first.departure &&
-                  widget.itinerary.last.arrival == plan.last.arrival;
-              return IconButton(
-                icon:
-                    Icon(isThisPlan ? Icons.bookmark : Icons.bookmark_outline),
-                tooltip: AppLocalizations.of(context)?.storePlan,
-                onPressed: () {
-                  var planHelper = context.read(savedPlanProvider.notifier);
-                  if (!isThisPlan)
-                    planHelper.setPlan(widget.itinerary);
-                  else
-                    planHelper.clearPlan();
-                },
-              );
+          IconButton(
+            icon: Icon(isThisPlan ? Icons.bookmark : Icons.bookmark_outline),
+            tooltip: AppLocalizations.of(context)?.storePlan,
+            onPressed: () {
+              var planHelper = ref.read(savedPlanProvider.notifier);
+              if (!isThisPlan)
+                planHelper.setPlan(widget.itinerary);
+              else
+                planHelper.clearPlan();
             },
           ),
         ],
@@ -90,13 +87,12 @@ class _ItineraryPageState extends State<ItineraryPage> {
         top: false,
         bottom: false,
         right: false,
-        child: OrientationBuilder(
-          builder: (context, orientation) => ListView.separated(
+        child:  ListView.separated(
             itemCount: widget.itinerary.length - startIndex,
             separatorBuilder: (context, index) => SizedBox(height: 5.0),
             itemBuilder: (context, index) => ItineraryLeg(
               widget.itinerary[index + startIndex],
-              orientation: orientation,
+              isPortrait: !isWide,
               location: location,
               lastLeg:
                   index == 0 ? null : widget.itinerary[index + startIndex - 1],
@@ -104,7 +100,6 @@ class _ItineraryPageState extends State<ItineraryPage> {
                   ? null
                   : widget.itinerary[index + startIndex + 1],
             ),
-          ),
         ),
       ),
     );

@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_bus/providers/tutorial_state.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
-class TutorialPage extends StatelessWidget {
+class TutorialPage extends ConsumerWidget {
   static const String SEEN_TUTORIAL_KEY = "seen_tutorial";
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const decoration = PageDecoration(
       imagePadding: EdgeInsets.symmetric(vertical: 24.0),
     );
@@ -88,7 +88,7 @@ class TutorialPage extends StatelessWidget {
       ),
       next: const Icon(Icons.navigate_next),
       onDone: () {
-        final seenTutorial = context.read(seenTutorialProvider.notifier);
+        final seenTutorial = ref.read(seenTutorialProvider.notifier);
         seenTutorial.setSeen();
         Navigator.pop(context);
       },

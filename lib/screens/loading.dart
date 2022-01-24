@@ -9,12 +9,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
-class LoadingPage extends StatefulWidget {
+class LoadingPage extends ConsumerStatefulWidget {
   @override
   _LoadingPageState createState() => _LoadingPageState();
 }
 
-class _LoadingPageState extends State<LoadingPage> {
+class _LoadingPageState extends ConsumerState<LoadingPage> {
   String? message;
 
   Future<LatLng?> getFirstLocation() async {
@@ -35,14 +35,14 @@ class _LoadingPageState extends State<LoadingPage> {
   }
 
   Future doInit() async {
-    // So that we can use context
+    // So that we can use ref
     await Future.delayed(Duration.zero);
 
     // First load all bus stops.
     setState(() {
       message = AppLocalizations.of(context)?.loadingStops;
     });
-    final stopList = context.read(stopsProvider);
+    final stopList = ref.read(stopsProvider);
     await stopList.loadBusStops();
 
     // Then acquire user location.

@@ -8,7 +8,7 @@ import 'package:quick_bus/screens/find_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 
-class DestinationPage extends StatefulWidget {
+class DestinationPage extends ConsumerStatefulWidget {
   final LatLng start;
   final LatLng? destination;
   final bool zoomCloser;
@@ -19,7 +19,7 @@ class DestinationPage extends StatefulWidget {
   _DestinationPageState createState() => _DestinationPageState();
 }
 
-class _DestinationPageState extends State<DestinationPage> {
+class _DestinationPageState extends ConsumerState<DestinationPage> {
   MapController mapController = MapController();
   late LatLng center;
 
@@ -81,7 +81,7 @@ class _DestinationPageState extends State<DestinationPage> {
         child: Icon(Icons.arrow_forward),
         onPressed: () {
           final destination = mapController.center;
-          context.read(lastDestinationsProvider.notifier).add(destination);
+          ref.read(lastDestinationsProvider.notifier).add(destination);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

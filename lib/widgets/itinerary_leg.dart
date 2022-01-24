@@ -14,7 +14,7 @@ import 'package:quick_bus/helpers/rich_tags.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-class ItineraryLeg extends StatefulWidget {
+class ItineraryLeg extends ConsumerStatefulWidget {
   final RouteElement leg;
   final bool isPortrait;
   final LatLng? location;
@@ -22,14 +22,13 @@ class ItineraryLeg extends StatefulWidget {
   final RouteElement? nextLeg;
 
   ItineraryLeg(this.leg,
-      {Orientation? orientation, this.location, this.lastLeg, this.nextLeg})
-      : isPortrait = orientation == null || orientation == Orientation.portrait;
+      {this.isPortrait = true, this.location, this.lastLeg, this.nextLeg});
 
   @override
   _ItineraryLegState createState() => _ItineraryLegState();
 }
 
-class _ItineraryLegState extends State<ItineraryLeg> {
+class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
   Arrival? arrival;
   late List<TextSpan> description;
   late Color pathColor;
@@ -125,7 +124,7 @@ class _ItineraryLegState extends State<ItineraryLeg> {
     if (arrival == null) return;
     if (arrival.scheduled.difference(DateTime.now()) > ARRIVAL_WINDOW) return;
 
-    final stopList = context.read(stopsProvider);
+    final stopList = ref.read(stopsProvider);
     final stop = await stopList.resolveStop(arrival.stop);
     if (stop != null) {
       List<Arrival> arrivals;

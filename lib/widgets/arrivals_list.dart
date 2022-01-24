@@ -6,22 +6,26 @@ import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';
 import 'package:quick_bus/widgets/arrivals.dart';
 
-class ArrivalsListContainer extends StatelessWidget {
+class ArrivalsListContainer extends ConsumerWidget {
   final BusStop arrivalsStop;
 
   const ArrivalsListContainer(this.arrivalsStop);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
-      onRefresh: () => context.refresh(arrivalsProvider(arrivalsStop)),
+      onRefresh: () {
+        ref.refresh(arrivalsProvider(arrivalsStop));
+        return ref.read(arrivalsProvider(arrivalsStop).future);
+      },
       child: Consumer(
         builder: (context, watch, child) {
-          final arrivalsValue = watch(arrivalsProvider(arrivalsStop));
+          final arrivalsValue = ref.watch(arrivalsProvider(arrivalsStop));
           return arrivalsValue.when(
             data: (data) {
               WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-                watch(arrivalsProviderCache(arrivalsStop)).state = data;
+                ref.read(arrivalsProviderCache(arrivalsStop).notifier).state =
+                    data;
               });
               return data.isEmpty
                   ? Center(
@@ -31,7 +35,8 @@ class ArrivalsListContainer extends StatelessWidget {
                   : ArrivalsList(data);
             },
             loading: () {
-              final cached = watch(arrivalsProviderCache(arrivalsStop)).state;
+              final cached =
+                  ref.read(arrivalsProviderCache(arrivalsStop).notifier).state;
               if (cached.isNotEmpty) return ArrivalsList(cached);
               return Center(child: CircularProgressIndicator());
             },
