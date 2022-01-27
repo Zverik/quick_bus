@@ -63,6 +63,10 @@ class _DestinationPageState extends ConsumerState<DestinationPage> {
           minZoom: 11.0,
           maxZoom: 17.0,
           interactiveFlags: InteractiveFlag.all ^ (InteractiveFlag.rotate),
+          onTap: (tapPos, latlng) {
+            final zoom = mapController.zoom;
+            mapController.move(latlng, zoom >= 17 ? zoom : zoom + 2);
+          },
         ),
         layers: [
           buildTileLayerOptions(),

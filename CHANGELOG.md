@@ -5,10 +5,13 @@
 _Unreleased_
 
 - Breaking: a route always starts from the geolocation, not from the map center.
-- Removed the marker when dragging the map.
+- Changed the marker when dragging the map to avoid misunderstanding.
 - Bookmarks can no longer be dragged onto the map with a long tap.
+- When choosing a destination on a map, tap to zoom to a location.
+- After restoring the app, map location is reset to the user's position.
 - Changed the icon for adding a bookmark.
 - Itinerary is printed in two columns on tablets.
+- For short walks an accurate distance is printed instead of zero meters.
 - Upgraded the Riverpod library.
 
 ## 1.2.2

@@ -97,13 +97,14 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
       arrival = null;
       pathColor = Colors.black;
       pathDotted = true;
-      final walkDistance = (widget.leg.distanceMeters / 100).round() * 100;
+      final walkMeters = widget.leg.distanceMeters;
+      final walkDistance = walkMeters <= 30 ? walkMeters : (walkMeters / 50).round() * 50;
       String walkTime = '';
       if (widget.lastLeg != null && widget.nextLeg is TransitRouteElement) {
         final duration = widget.nextLeg!.departure
             .difference(widget.leg.departure)
             .inSeconds;
-        final speed = widget.leg.distanceMeters / duration * 3.6;
+        final speed = walkMeters / duration * 3.6;
         if (speed < 2.0) {
           walkTime = ' ' + loc.noHurry(loc.fullMinutes((duration / 60).floor()));
         } else {

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/helpers/arrivals_cache.dart';
+import 'package:quick_bus/helpers/lifecycle.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';
@@ -47,12 +48,30 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
   final arrivalsCache = ArrivalsCache(); // To solve issues with arrivals
   final stopMapController =
       StopMapController(); // To force location change on the map
+  late LifecycleEventHandler
+      lifecycleObserver; // To reset location after resuming
+  DateTime? detachedOn;
 
   @override
   void initState() {
     super.initState();
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
+
+    lifecycleObserver = LifecycleEventHandler(
+      resumed: () async {
+        if (detachedOn == null || DateTime.now().difference(detachedOn!).inSeconds > 120) {
+          // When resuming after a minute, reset location to GPS.
+          resetLocation();
+        }
+        detachedOn = null;
+      },
+      detached: () async {
+        detachedOn = DateTime.now();
+      }
+    );
+    WidgetsBinding.instance?.addObserver(lifecycleObserver);
+
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
       ref.refresh(arrivalsProvider(nearestStop));
     });
@@ -62,6 +81,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
   @override
   void dispose() {
     _timer.cancel();
+    WidgetsBinding.instance?.removeObserver(lifecycleObserver);
     super.dispose();
   }
 
@@ -91,6 +111,16 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
       forceUpdateNearestStops(
           locationToUpdateForNearest!, shouldUpdateArrivals);
     });
+  }
+
+  resetLocation() {
+    if (lastTrack == null) return;
+    setState(() {
+      tracking = true;
+      location = lastTrack!;
+    });
+    stopMapController.setLocation(lastTrack!, emitDrag: false);
+    forceUpdateNearestStops(lastTrack!, true);
   }
 
   @override
@@ -127,16 +157,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
                     );
                   }),
           IconButton(
-            onPressed: tracking
-                ? null
-                : () {
-                    setState(() {
-                      tracking = true;
-                      if (lastTrack != null) location = lastTrack!;
-                    });
-                    stopMapController.setLocation(lastTrack!, emitDrag: false);
-                    forceUpdateNearestStops(lastTrack!, true);
-                  },
+            onPressed: tracking ? null : resetLocation,
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
           ),

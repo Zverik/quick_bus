@@ -88,8 +88,7 @@ class _StopMapState extends ConsumerState<StopMap> {
 
   void onControllerLocation(LatLng location, bool emitDrag) {
     mapController.move(location, mapController.zoom);
-    if (emitDrag && widget.onDrag != null)
-      widget.onDrag!(location);
+    if (emitDrag && widget.onDrag != null) widget.onDrag!(location);
   }
 
   void onLocationEvent(Position pos) {
@@ -162,13 +161,17 @@ class _StopMapState extends ConsumerState<StopMap> {
         ),
         if (widget.chosenStop != null)
           StopWithLabelOptions(context, widget.chosenStop!),
-        if (!widget.track && trackLocation == null)
+        if (!widget.track)
           MarkerLayerOptions(
             markers: [
               Marker(
                 point: widget.location,
-                anchorPos: AnchorPos.exactly(Anchor(15.0, 5.0)),
-                builder: (ctx) => Icon(Icons.location_pin),
+                anchorPos: AnchorPos.exactly(Anchor(15.0, trackLocation == null ? 5.0 : 12.0)),
+                builder: (ctx) => Icon(
+                  trackLocation == null ? Icons.location_pin : Icons.adjust,
+                  color: Colors.black.withOpacity(0.3),
+                  size: 24.0,
+                ),
               ),
             ],
           ),
