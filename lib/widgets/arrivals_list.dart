@@ -15,12 +15,12 @@ class ArrivalsListContainer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
       onRefresh: () {
-        ref.refresh(arrivalsProvider(arrivalsStop));
-        return ref.read(arrivalsProvider(arrivalsStop).future);
+        ref.refresh(multipleArrivalsProvider(arrivalsStop));
+        return ref.read(multipleArrivalsProvider(arrivalsStop).future);
       },
       child: Consumer(
         builder: (context, watch, child) {
-          final arrivalsValue = ref.watch(arrivalsProvider(arrivalsStop));
+          final arrivalsValue = ref.watch(multipleArrivalsProvider(arrivalsStop));
           return arrivalsValue.when(
             data: (data) {
               WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {

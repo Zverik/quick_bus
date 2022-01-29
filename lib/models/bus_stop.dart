@@ -8,6 +8,7 @@ class BusStop {
   final LatLng location;
   String name; // Can be updated from otherIds.
   String? address;
+  final List<BusStop> stopsAround = [];
 
   BusStop({
     required this.gtfsId,

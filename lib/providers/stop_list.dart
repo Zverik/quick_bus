@@ -39,6 +39,22 @@ class CachedNearestStops {
         _latitude == (around.latitude * PRECISION).round() &&
         _longitude == (around.longitude * PRECISION).round();
   }
+
+  bool fits(LatLng around, int distance) {
+    return this.distance >= distance &&
+        _latitude == (around.latitude * PRECISION).round() &&
+        _longitude == (around.longitude * PRECISION).round();
+  }
+
+  LatLng get location => LatLng(_latitude / PRECISION, _longitude / PRECISION);
+
+  List<BusStop> filter(int distance) {
+    if (distance >= this.distance) return stops;
+    final dist = DistanceEquirectangular();
+    return stops
+        .where((stop) => dist(location, stop.location) <= distance)
+        .toList();
+  }
 }
 
 List<SiriBusStop> _parseStopCSV(String data) {
@@ -77,7 +93,8 @@ class StopList {
 
   Future<List<BusStop>> findNearestStops(LatLng location,
       {int count = 3, int maxDistance = 500}) async {
-    if (cachedNearest.isSame(location, maxDistance)) return cachedNearest.stops;
+    if (cachedNearest.fits(location, maxDistance))
+      return cachedNearest.filter(maxDistance);
 
     final db = await DatabaseHelper.db.database;
     final geohashes = createGeohashes(
@@ -95,6 +112,7 @@ class StopList {
       whereArgs: geohashes,
     );
 
+    // Convert to a list of BusStop, filter and sort by distance.
     final distance = DistanceEquirectangular();
     final stops = results
         .map((row) => SiriBusStop.fromJson(row))
@@ -102,6 +120,19 @@ class StopList {
         .toList();
     stops.sort((a, b) => distance(location, a.location)
         .compareTo(distance(location, b.location)));
+
+    // Fill stops around using the sortedness.
+    for (int i = 0; i < stops.length; i++) {
+      final stop = stops[i];
+      for (int j = i - 3; j <= i + 3; j++) {
+        if (j < 0 || j >= stops.length) continue;
+        if (j != i && distance(stop.location, stops[j].location) < kStopsTooCloseDistance) {
+          stop.stopsAround.add(stops[j]);
+        }
+      }
+    }
+
+    // Cache and return the resulting list.
     cachedNearest = CachedNearestStops(location, maxDistance, stops);
     return stops;
   }
@@ -144,8 +175,12 @@ class StopList {
 
     // Put stops with names that start with part first.
     mergeSort(stops, compare: (BusStop a, BusStop b) {
-      final hasPrefixA = a.normalizedName.split(' ').any((element) => element.startsWith(part));
-      final hasPrefixB = b.normalizedName.split(' ').any((element) => element.startsWith(part));
+      final hasPrefixA = a.normalizedName
+          .split(' ')
+          .any((element) => element.startsWith(part));
+      final hasPrefixB = b.normalizedName
+          .split(' ')
+          .any((element) => element.startsWith(part));
       if (hasPrefixA == hasPrefixB) return 0;
       return hasPrefixA ? -1 : 1;
     });
@@ -206,7 +241,8 @@ class StopList {
     if (response.statusCode != 200) {
       throw StopsDownloadError('Failed to load stops: ${response.statusCode}');
     }
-    final result = await compute(_parseStopCSV, utf8.decode(response.bodyBytes));
+    final result =
+        await compute(_parseStopCSV, utf8.decode(response.bodyBytes));
     if (result.length < kMinimumStopCount)
       throw StopsDownloadError(
           'Got only ${result.length} stops, must be an error.');
