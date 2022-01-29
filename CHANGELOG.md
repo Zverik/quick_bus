@@ -13,6 +13,8 @@ _Unreleased_
 - Changed the icon for adding a bookmark.
 - Itinerary is printed in two columns on tablets.
 - For short walks an accurate distance is printed instead of zero meters.
+- Made the blue location circle smaller.
+- Reworked geolocation permissions requests.
 - Upgraded the Riverpod library.
 
 ## 1.2.2

@@ -11,27 +11,29 @@ import 'package:flutter_gen/gen_l10n/l10n.dart';
 class BookmarkRow extends StatelessWidget {
   final List<Bookmark> bookmarks;
   final LatLng location;
-  final LatLng? trackLocation;
   final bookmarkScrollController = ScrollController();
   final bool isPortrait;
 
   BookmarkRow(this.location, this.bookmarks,
-      {Orientation? orientation, this.trackLocation})
+      {Orientation? orientation})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
 
   bool isFarEnough() {
+    // When it's needed again, employ the provider
+    // final trackLocation = ref.read(geolocationProvider);
+    final LatLng? trackLocation = null;
     if (trackLocation == null) return false;
     final distance = DistanceEquirectangular();
-    return distance(trackLocation!, location) > kRouteToSelfDistance;
+    return distance(trackLocation, location) > kRouteToSelfDistance;
   }
 
   @override
   Widget build(BuildContext context) {
-    final bookmarks = trackLocation != null && isFarEnough()
+    final bookmarks = isFarEnough()
         ? [
             Bookmark(
               name: AppLocalizations.of(context)!.myLocation,
-              location: trackLocation!,
+              location: location, // ref.watch(geolocationProvider),
               emoji: '📍',
             ),
             ...this.bookmarks

@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
 import 'package:quick_bus/models/route_element.dart';
@@ -9,7 +6,6 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_bus/widgets/itinerary_leg.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
-import 'package:latlong2/latlong.dart';
 
 class ItineraryPage extends ConsumerStatefulWidget {
   final List<RouteElement> itinerary;
@@ -22,27 +18,16 @@ class ItineraryPage extends ConsumerStatefulWidget {
 
 class _ItineraryPageState extends ConsumerState<ItineraryPage> {
   static final timeFormat = DateFormat.Hm();
-  late StreamSubscription<Position> locSub;
-  LatLng? location;
   int startIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    locSub = Geolocator.getPositionStream(
-      intervalDuration: Duration(seconds: 3),
-      desiredAccuracy: LocationAccuracy.high,
-    ).listen((pos) {
-      setState(() {
-        location = LatLng(pos.latitude, pos.longitude);
-      });
-    }, cancelOnError: true);
     startIndex = calcStartIndex();
   }
 
   @override
   void dispose() {
-    locSub.cancel();
     super.dispose();
   }
 
@@ -64,6 +49,7 @@ class _ItineraryPageState extends ConsumerState<ItineraryPage> {
     final isThisPlan = plan.length == widget.itinerary.length &&
         widget.itinerary.first.departure == plan.first.departure &&
         widget.itinerary.last.arrival == plan.last.arrival;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -93,7 +79,6 @@ class _ItineraryPageState extends ConsumerState<ItineraryPage> {
             itemBuilder: (context, index) => ItineraryLeg(
               widget.itinerary[index + startIndex],
               isPortrait: !isWide,
-              location: location,
               lastLeg:
                   index == 0 ? null : widget.itinerary[index + startIndex - 1],
               nextLeg: index + startIndex + 1 >= widget.itinerary.length

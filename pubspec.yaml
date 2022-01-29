@@ -14,7 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
-  geolocator: ^7.7.0
+  geolocator: ^8.0.0
   http: ^0.13.3
   csv: ^5.0.0
   osm_nominatim: ^2.0.1

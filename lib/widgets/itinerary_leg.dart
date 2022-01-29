@@ -5,6 +5,7 @@ import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:quick_bus/helpers/siri.dart';
+import 'package:quick_bus/providers/geolocation.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
@@ -12,17 +13,15 @@ import 'package:quick_bus/widgets/arrival_row.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:quick_bus/helpers/rich_tags.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 
 class ItineraryLeg extends ConsumerStatefulWidget {
   final RouteElement leg;
   final bool isPortrait;
-  final LatLng? location;
   final RouteElement? lastLeg;
   final RouteElement? nextLeg;
 
   ItineraryLeg(this.leg,
-      {this.isPortrait = true, this.location, this.lastLeg, this.nextLeg});
+      {this.isPortrait = true, this.lastLeg, this.nextLeg});
 
   @override
   _ItineraryLegState createState() => _ItineraryLegState();
@@ -191,6 +190,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
         ),
       ],
     );
+    final location = ref.watch(geolocationProvider);
     final map = SizedBox(
       height: 200.0,
       child: FlutterMap(
@@ -207,9 +207,9 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
             buildTileLayerOptions(false),
             CircleLayerOptions(
               circles: [
-                if (widget.location != null)
+                if (location != null)
                   CircleMarker(
-                    point: widget.location!,
+                    point: location,
                     color: Colors.blue.withOpacity(0.6),
                     radius: 20.0,
                   ),

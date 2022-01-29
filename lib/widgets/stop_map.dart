@@ -3,10 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
+import 'package:quick_bus/providers/geolocation.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +21,6 @@ class StopMapController {
 
 class StopMap extends ConsumerStatefulWidget {
   final LatLng location;
-  final bool track;
   final BusStop? chosenStop;
   final void Function(LatLng)? onDrag;
   final void Function(LatLng)? onDragEnd;
@@ -30,7 +29,6 @@ class StopMap extends ConsumerStatefulWidget {
 
   const StopMap(
       {required this.location,
-      this.track = false,
       this.onDrag,
       this.onDragEnd,
       this.onTrack,
@@ -44,8 +42,6 @@ class StopMap extends ConsumerStatefulWidget {
 class _StopMapState extends ConsumerState<StopMap> {
   late final MapController mapController;
   late final StreamSubscription<MapEvent> mapSub;
-  late final StreamSubscription<Position> locSub;
-  LatLng? trackLocation;
   List<LatLng> nearestStops = [];
   LatLng? lastNearestStopCheck;
   static const kNearestStopUpdateThreshold = 100.0; // meters
@@ -58,10 +54,6 @@ class _StopMapState extends ConsumerState<StopMap> {
     if (widget.controller != null)
       widget.controller!.listener = onControllerLocation;
     mapSub = mapController.mapEventStream.listen(onMapEvent);
-    locSub = Geolocator.getPositionStream(
-      intervalDuration: Duration(seconds: 3),
-      desiredAccuracy: LocationAccuracy.high,
-    ).listen(onLocationEvent, onError: onLocationError, cancelOnError: true);
     Future.delayed(Duration(milliseconds: 500), () {
       updateNearestStops();
     });
@@ -77,8 +69,11 @@ class _StopMapState extends ConsumerState<StopMap> {
   void onMapEvent(MapEvent event) {
     if (event is MapEventMove) {
       updateNearestStops(event.targetCenter);
-      if (widget.onDrag != null && event.source != MapEventSource.mapController)
-        widget.onDrag!(event.targetCenter);
+      if (event.source != MapEventSource.mapController) {
+        ref.read(trackingProvider.state).state = false;
+        if (widget.onDrag != null)
+          widget.onDrag!(event.targetCenter);
+      }
     } else if (event is MapEventMoveEnd) {
       if (widget.onDragEnd != null &&
           event.source != MapEventSource.mapController)
@@ -91,27 +86,9 @@ class _StopMapState extends ConsumerState<StopMap> {
     if (emitDrag && widget.onDrag != null) widget.onDrag!(location);
   }
 
-  void onLocationEvent(Position pos) {
-    var newPos = LatLng(pos.latitude, pos.longitude);
-    if (widget.onTrack != null) widget.onTrack!(newPos);
-    if (widget.track) {
-      mapController.move(newPos, mapController.zoom);
-    }
-    if (newPos != trackLocation) {
-      setState(() {
-        trackLocation = newPos;
-      });
-    }
-  }
-
-  onLocationError(event) {
-    // TODO: Now click on the "track location" icon should resume geolocation.
-  }
-
   @override
   void dispose() {
     mapSub.cancel();
-    locSub.cancel();
     super.dispose();
   }
 
@@ -136,6 +113,26 @@ class _StopMapState extends ConsumerState<StopMap> {
 
   @override
   Widget build(BuildContext context) {
+    final LatLng? trackLocation = ref.watch(geolocationProvider);
+
+    // When tracking location, move map and notify the poi list.
+    ref.listen<LatLng?>(geolocationProvider, (_, LatLng? location) {
+      if (location != null && ref.watch(trackingProvider)) {
+        mapController.move(location, mapController.zoom);
+        if (widget.onDragEnd != null) widget.onDragEnd!(location);
+        if (widget.onTrack != null) widget.onTrack!(location);
+      }
+    });
+
+    // When turning the tracking on, move the map immediately.
+    ref.listen(trackingProvider, (_, bool newState) {
+      if (trackLocation != null && newState) {
+        mapController.move(trackLocation, mapController.zoom);
+        if (widget.onDragEnd != null) widget.onDragEnd!(trackLocation);
+        if (widget.onTrack != null) widget.onTrack!(trackLocation);
+      }
+    });
+
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
@@ -151,9 +148,9 @@ class _StopMapState extends ConsumerState<StopMap> {
           circles: [
             if (trackLocation != null)
               CircleMarker(
-                point: trackLocation!,
+                point: trackLocation,
                 color: Colors.blue.withOpacity(0.6),
-                radius: 20.0,
+                radius: 15.0,
               ),
             for (var stop in nearestStops)
               StopWithLabelOptions.getCircleMarker(stop),
@@ -161,15 +158,16 @@ class _StopMapState extends ConsumerState<StopMap> {
         ),
         if (widget.chosenStop != null)
           StopWithLabelOptions(context, widget.chosenStop!),
-        if (!widget.track)
+        if (!ref.watch(trackingProvider))
           MarkerLayerOptions(
             markers: [
               Marker(
                 point: widget.location,
-                anchorPos: AnchorPos.exactly(Anchor(15.0, trackLocation == null ? 5.0 : 12.0)),
+                anchorPos: AnchorPos.exactly(
+                    Anchor(15.0, trackLocation == null ? 5.0 : 12.0)),
                 builder: (ctx) => Icon(
                   trackLocation == null ? Icons.location_pin : Icons.adjust,
-                  color: Colors.black.withOpacity(0.3),
+                  color: trackLocation == null ? Colors.black : Colors.black.withOpacity(0.3),
                   size: 24.0,
                 ),
               ),

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:quick_bus/constants.dart';
+import 'package:quick_bus/providers/geolocation.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/screens/monitor.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,23 +16,6 @@ class LoadingPage extends ConsumerStatefulWidget {
 
 class _LoadingPageState extends ConsumerState<LoadingPage> {
   String? message;
-
-  Future<LatLng?> getFirstLocation() async {
-    // TODO: check for permissions
-    try {
-      final loc = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-        timeLimit: Duration(seconds: 5),
-      );
-      return LatLng(loc.latitude, loc.longitude);
-    } on TimeoutException {
-      // ?
-    } on LocationServiceDisabledException {
-      // ?
-    } on PermissionDeniedException {
-      // ?
-    }
-  }
 
   Future doInit() async {
     // So that we can use ref
@@ -49,7 +32,8 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
     setState(() {
       message = AppLocalizations.of(context)?.acquiringLocation;
     });
-    LatLng? location = await getFirstLocation();
+    await ref.read(geolocationProvider.notifier).enableTracking(context);
+    LatLng? location = ref.read(geolocationProvider);
     // Finally switch to the monitor page.
     Navigator.pushReplacement(
       context,

@@ -118,7 +118,7 @@ class _RoutePageState extends State<RoutePage> {
       body = FlutterMap(
         options: MapOptions(
           center: widget.arrival.stop.location,
-          zoom: 13.0, // TODO: check that it looks good
+          zoom: 13.0,
           minZoom: 10.0,
           maxZoom: 18.0,
           interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,

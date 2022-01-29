@@ -11,6 +11,7 @@ import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
+import 'package:quick_bus/providers/geolocation.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/providers/tutorial_state.dart';
@@ -34,8 +35,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
       arrivalsStop; // Updated to nearestStop when needed to redraw arrivals
   List<Arrival> arrivals = []; // Arrivals for the nearest stop
   late LatLng location; // Map center location
-  bool tracking = true; // Are we following GPS signal?
-  LatLng? lastTrack; // Last GPS location, even when not tracking
+  // LatLng? lastTrack; // Last GPS location, even when not tracking
   Timer? nearestStopTimer; // We update nearest stop with a slight delay
   LatLng?
       locationToUpdateForNearest; // And save the last location to find nearest stops for it
@@ -58,18 +58,16 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
 
-    lifecycleObserver = LifecycleEventHandler(
-      resumed: () async {
-        if (detachedOn == null || DateTime.now().difference(detachedOn!).inSeconds > 120) {
-          // When resuming after a minute, reset location to GPS.
-          resetLocation();
-        }
-        detachedOn = null;
-      },
-      detached: () async {
-        detachedOn = DateTime.now();
+    lifecycleObserver = LifecycleEventHandler(resumed: () async {
+      if (detachedOn == null ||
+          DateTime.now().difference(detachedOn!).inSeconds > 120) {
+        // When resuming after a minute, reset location to GPS.
+        ref.read(geolocationProvider.notifier).enableTracking();
       }
-    );
+      detachedOn = null;
+    }, detached: () async {
+      detachedOn = DateTime.now();
+    });
     WidgetsBinding.instance?.addObserver(lifecycleObserver);
 
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
@@ -113,16 +111,6 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     });
   }
 
-  resetLocation() {
-    if (lastTrack == null) return;
-    setState(() {
-      tracking = true;
-      location = lastTrack!;
-    });
-    stopMapController.setLocation(lastTrack!, emitDrag: false);
-    forceUpdateNearestStops(lastTrack!, true);
-  }
-
   @override
   Widget build(BuildContext context) {
     final seenTutorial = ref.watch(seenTutorialProvider);
@@ -157,7 +145,11 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
                     );
                   }),
           IconButton(
-            onPressed: tracking ? null : resetLocation,
+            onPressed: ref.watch(trackingProvider)
+                ? null
+                : () {
+                    ref.read(geolocationProvider.notifier).enableTracking(context);
+                  },
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
           ),
@@ -171,12 +163,10 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
                 children: [
                   StopMap(
                     location: location,
-                    track: tracking,
                     chosenStop: nearestStop,
                     controller: stopMapController,
                     onDrag: (pos) {
                       setState(() {
-                        tracking = false;
                         location = pos;
                       });
                       updateNearestStops(shouldUpdateArrivals: false);
@@ -185,22 +175,18 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
                       forceUpdateNearestStops(pos, true);
                     },
                     onTrack: (pos) {
-                      lastTrack = pos;
-                      if (tracking) {
-                        setState(() {
-                          location = pos;
-                        });
-                        forceUpdateNearestStops(pos, true);
-                      }
+                      setState(() {
+                        location = pos;
+                      });
+                      forceUpdateNearestStops(pos, true);
                     },
                   ),
                 ],
               ),
             ),
             BookmarkRow(
-              lastTrack ?? location,
+              ref.watch(geolocationProvider) ?? location,
               ref.watch(bookmarkProvider),
-              trackLocation: lastTrack,
               orientation: orientation,
             ),
             Expanded(
