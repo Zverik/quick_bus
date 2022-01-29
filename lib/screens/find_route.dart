@@ -161,7 +161,7 @@ class _FindRoutePageState extends ConsumerState<FindRoutePage> {
       ),
       floatingActionButton: options != null && bookmark == null
           ? FloatingActionButton(
-              child: Icon(Icons.bookmark),
+              child: Icon(Icons.bookmark_outline),
               tooltip: AppLocalizations.of(context)?.addBookmark,
               onPressed: () async {
                 var bookmarkHelper = ref.read(bookmarkProvider.notifier);

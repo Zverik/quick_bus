@@ -7,6 +7,7 @@ _Unreleased_
 - Breaking: a route always starts from your position, not from the map center.
 - Changed the marker when dragging the map to avoid misunderstanding.
 - Bookmarks can no longer be dragged onto the map with a long tap.
+  You can still plan a route somewhere and then reverse it.
 - When choosing a destination on a map, tap to zoom to a location.
 - For stops close by, arrival lists are merged with the current stop.
 - After restoring the app, map location is reset to the user's position.
