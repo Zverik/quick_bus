@@ -358,11 +358,11 @@
   "@tMainScreen": {
     "description": "Title for the first tutorial page."
   },
-  "bMainScreen": "Drag the map if you start at a different location, then consult the arrival times or tap any of the destination icons.",
+  "bMainScreen": "Drag the map to choose a nearby stop, consult the arrival times for it, or tap any of the destination icons.",
   "@bMainScreen": {
     "description": "Description for the main screen tutorial page."
   },
-  "msMap": "Map: starting point and the nearest stop",
+  "msMap": "Map: your location and the nearest stop",
   "@msMap": {
     "description": "Upper part of the main screen."
   },
@@ -370,7 +370,7 @@
   "@msDestination": {
     "description": "Middle part of the main screen."
   },
-  "msArrivals": "Arrivals for the nearest stop",
+  "msArrivals": "Arrivals for the chosen stop",
   "@msArrivals": {
     "description": "Lower part of the main screen."
   },
@@ -378,7 +378,7 @@
   "@tBookmarks": {
     "description": "Title for the second tutorial page."
   },
-  "bBookmarks": "After choosing a familiar destination, save it by tapping \"+\". Choose an emoji and a name for your bookmark, to plan routes with a single tap.",
+  "bBookmarks": "After choosing a familiar destination, save it by tapping the button. Choose an emoji and a name for your bookmark, to plan routes with a single tap.",
   "@bBookmarks": {
     "description": "Description for the bookmarks tutorial page."
   },
@@ -394,7 +394,7 @@
   "@tFriendRoute": {
     "description": "Title for the fourth tutorial page."
   },
-  "bFriendRoute": "To plan a route from a saved location, long-press a bookmark and drag it onto the map. The pin bookmark is where you are. Alternatively, build a route to your friend and reverse it towards you.",
+  "bFriendRoute": "To plan a route for your friend towards you, build one to them as usual, and then tap the button to reverse it.",
   "@bFriendRoute": {
     "description": "Description for the friend route page."
   },

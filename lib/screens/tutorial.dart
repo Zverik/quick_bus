@@ -111,12 +111,12 @@ class ScreenPart extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(10.0),
         ),
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
         child: Text(
           text,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 18.0,
+            fontSize: 17.0,
           ),
         ),
       ),
