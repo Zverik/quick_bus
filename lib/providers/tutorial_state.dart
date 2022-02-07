@@ -10,18 +10,18 @@ class SeenTutorialController extends StateNotifier<bool> {
 
   SeenTutorialController() : super(true) {
     SharedPreferences.getInstance().then((preferences) {
-      _setSeen(preferences.getInt(TUTORIAL_DATE_KEY));
+      state = _seenTutorial(preferences.getInt(TUTORIAL_DATE_KEY));
     });
   }
 
-  _setSeen(int? last) {
+  bool _seenTutorial(int? last) {
     final cutoff = DateTime.now().subtract(Duration(days: 1));
-    state = last != null && last < formatDate(cutoff);
+    return last != null && last < formatDate(cutoff);
   }
 
   setSeen() async {
     if (state) return;
-    _setSeen(formatDate());
+    state = _seenTutorial(formatDate());
     final preferences = await SharedPreferences.getInstance();
     await preferences.setInt(TUTORIAL_DATE_KEY, formatDate());
   }

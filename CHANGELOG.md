@@ -2,7 +2,7 @@
 
 ## 1.3.0
 
-_Unreleased_
+_Released on 2021-02-07_
 
 - Breaking: a route always starts from your position, not from the map center.
 - Changed the marker when dragging the map to avoid misunderstanding.
