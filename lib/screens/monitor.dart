@@ -93,8 +93,8 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     if (loc != null && ref.read(geolocationProvider) == null) {
       setState(() {
         location = LatLng(double.parse(loc[0]), double.parse(loc[1]));
-        stopMapController.setLocation(location);
       });
+      stopMapController.setLocation(location);
     }
   }
 
