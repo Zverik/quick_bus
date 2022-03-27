@@ -130,7 +130,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
       List<Arrival> arrivals;
       try {
         arrivals = await SiriHelper().getArrivals(stop);
-      } on SocketException {
+      } on Exception {
         // It's okay to be rejected.
         return;
       }

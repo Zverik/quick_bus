@@ -12,6 +12,7 @@ const kPlanBefore = Duration(minutes: 2);
 const kGeohashPrecision = 6; // ~600 meters
 const kMinimumStopCount = 3000;
 const kCacheArrivals = Duration(seconds: 10);
+const kSiriTimeout = Duration(seconds: 2);
 const kHostToPing = 'transport.tallinn.ee';
 const kArrivalsMessageStyle = TextStyle(fontSize: 20.0);
 const kRouteToSelfDistance = 1500; // meters

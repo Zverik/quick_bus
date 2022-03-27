@@ -20,6 +20,7 @@ import 'package:quick_bus/screens/tutorial.dart';
 import 'package:quick_bus/widgets/arrivals_list.dart';
 import 'package:quick_bus/widgets/bookmark_row.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MonitorPage extends ConsumerStatefulWidget {
   final LatLng? location;
@@ -30,6 +31,8 @@ class MonitorPage extends ConsumerStatefulWidget {
 }
 
 class _MonitorPageState extends ConsumerState<MonitorPage> {
+  static const kSavedLocation = 'last_location';
+
   BusStop? nearestStop; // Stop nearest to map center
   BusStop?
       arrivalsStop; // Updated to nearestStop when needed to redraw arrivals
@@ -57,6 +60,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     super.initState();
     location =
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
+    if (widget.location == null) restoreLocation();
 
     lifecycleObserver = LifecycleEventHandler(resumed: () async {
       if (detachedOn == null ||
@@ -81,6 +85,23 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     _timer.cancel();
     WidgetsBinding.instance?.removeObserver(lifecycleObserver);
     super.dispose();
+  }
+
+  restoreLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final loc = prefs.getStringList(kSavedLocation);
+    if (loc != null && ref.read(geolocationProvider) == null) {
+      setState(() {
+        location = LatLng(double.parse(loc[0]), double.parse(loc[1]));
+        stopMapController.setLocation(location);
+      });
+    }
+  }
+
+  saveLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(kSavedLocation,
+        [location.latitude.toString(), location.longitude.toString()]);
   }
 
   forceUpdateNearestStops(LatLng location, bool shouldUpdateArrivals) async {

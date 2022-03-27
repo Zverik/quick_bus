@@ -19,7 +19,11 @@ final arrivalsProvider = FutureProvider
   // print('Updating arrivals for $stopStr');
   List<Arrival> arrivals = const [];
   try {
-    if (stop is SiriBusStop) arrivals = await SiriHelper().getArrivals(stop);
+    try {
+      if (stop is SiriBusStop) arrivals = await SiriHelper().getArrivals(stop);
+    } on SiriDownloadError {
+      // query OTP, no worries
+    }
     if (arrivals.isEmpty) arrivals = await RouteQuery().getArrivals(stop);
   } on SocketException catch (e) {
     // TODO: show dialog, but just one time.

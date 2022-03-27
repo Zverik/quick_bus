@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:http/http.dart' as http;
@@ -14,10 +17,16 @@ class SiriHelper {
       throw SiriDownloadError('Stop does not have siriId: ${stop.name}');
     // http://transport.tallinn.ee/siri-stop-departures.php?stopid=1079,1080,1081&time=1390219197288
     var currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
-    var response = await http.get(Uri.https(
-        'transport.tallinn.ee',
-        '/siri-stop-departures.php',
-        {'stopid': stop.siriId, 'time': currentTime.toString()}));
+    final uri = Uri.https('transport.tallinn.ee', '/siri-stop-departures.php',
+        {'stopid': stop.siriId, 'time': currentTime.toString()});
+    http.Response response;
+    try {
+      response = await http.get(uri).timeout(kSiriTimeout);
+    } on TimeoutException {
+      // No good way to set a request timeout:
+      // https://stackoverflow.com/questions/68615374/proper-way-of-setting-request-timeout-for-flutter-http-requests
+      throw SiriDownloadError('Timeout for $uri');
+    }
 
     if (response.statusCode == 200) {
       final parser = CsvToListConverter(
@@ -38,8 +47,8 @@ class SiriHelper {
         } else if (currentStop) {
           // Arrival line possibly
           if (Arrival.validate(row)) {
-            var arrival = Arrival.fromList(stop, row,
-                baseSeconds: currentTimeSeconds);
+            var arrival =
+                Arrival.fromList(stop, row, baseSeconds: currentTimeSeconds);
             arrivals.add(arrival);
           }
         }

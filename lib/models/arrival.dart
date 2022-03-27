@@ -39,15 +39,19 @@ class Arrival {
         number: parts[1],
         headsign: parts[4],
       ),
-      expected: secondsToDateTime(int.parse(parts[2])),
-      scheduled: secondsToDateTime(int.parse(parts[3])),
+      expected: secondsToDateTime(int.tryParse(parts[2]), baseSeconds),
+      scheduled: secondsToDateTime(int.parse(parts[3]), baseSeconds)!,
     );
   }
 
-  static DateTime secondsToDateTime(int seconds) {
+  static DateTime? secondsToDateTime(int? seconds, [int? baseSeconds]) {
+    if (seconds == null) return null;
     var now = DateTime.now();
-    var hours = seconds ~/ 3600;
-    var minutesSeconds = seconds % 3600;
+    final secondsDiff = baseSeconds == null
+        ? 0
+        : now.second + now.minute * 60 + now.hour * 3600 - baseSeconds;
+    var hours = (seconds + secondsDiff) ~/ 3600;
+    var minutesSeconds = (seconds + secondsDiff) % 3600;
     return DateTime(now.year, now.month, now.day, hours, minutesSeconds ~/ 60,
         minutesSeconds % 60);
   }

@@ -144,7 +144,7 @@ class RouteQuery {
 
       // Found the right route, now check times.
       for (Map<String, dynamic> time in entry['times']) {
-        var scheduled = Arrival.secondsToDateTime(time['scheduledDeparture']);
+        var scheduled = Arrival.secondsToDateTime(time['scheduledDeparture'])!;
         patterns[scheduled] = entry['pattern']['id'];
       }
     }
@@ -226,7 +226,7 @@ class RouteQuery {
       // TODO: get route from database by otpId
       var route = TransitRoute.fromGtfsIdHack(routeId);
       for (Map<String, dynamic> time in entry['times']) {
-        var scheduled = Arrival.secondsToDateTime(time['scheduledDeparture']);
+        var scheduled = Arrival.secondsToDateTime(time['scheduledDeparture'])!;
         route.headsign = time['headsign'] ?? route.headsign;
         arrivals.add(Arrival(
           route: route,

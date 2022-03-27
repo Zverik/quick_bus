@@ -1,5 +1,12 @@
 # Easy Transit Tallinn Change Log
 
+## 1.3.1
+
+_Released on 2022-03-27_
+
+- Summer/winter time switch fix for the arrivals list.
+- Saving last location when GPS is disabled.
+
 ## 1.3.0
 
 _Released on 2021-02-07_
