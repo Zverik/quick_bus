@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class CachedTileProvider extends TileProvider {
-  const CachedTileProvider();
+  CachedTileProvider();
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
@@ -14,15 +14,9 @@ class CachedTileProvider extends TileProvider {
   }
 }
 
-TileLayerOptions buildTileLayerOptions([bool showAttribution = false]) {
+TileLayerOptions buildTileLayerOptions() {
   return TileLayerOptions(
     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    tileProvider: const CachedTileProvider(),
-    attributionBuilder: !showAttribution
-        ? null
-        : (context) => Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text('© OpenStreetMap contributors'),
-            ),
+    tileProvider: CachedTileProvider(),
   );
 }

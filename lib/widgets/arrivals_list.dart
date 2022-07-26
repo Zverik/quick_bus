@@ -23,7 +23,7 @@ class ArrivalsListContainer extends ConsumerWidget {
           final arrivalsValue = ref.watch(multipleArrivalsProvider(arrivalsStop));
           return arrivalsValue.when(
             data: (data) {
-              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                 ref.read(arrivalsProviderCache(arrivalsStop).notifier).state =
                     data;
               });

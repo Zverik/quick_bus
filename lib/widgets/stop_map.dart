@@ -71,8 +71,7 @@ class _StopMapState extends ConsumerState<StopMap> {
       updateNearestStops(event.targetCenter);
       if (event.source != MapEventSource.mapController) {
         ref.read(trackingProvider.state).state = false;
-        if (widget.onDrag != null)
-          widget.onDrag!(event.targetCenter);
+        if (widget.onDrag != null) widget.onDrag!(event.targetCenter);
       }
     } else if (event is MapEventMoveEnd) {
       if (widget.onDragEnd != null &&
@@ -142,8 +141,17 @@ class _StopMapState extends ConsumerState<StopMap> {
         maxZoom: 18.0,
         interactiveFlags: InteractiveFlag.drag | InteractiveFlag.pinchZoom,
       ),
+      nonRotatedChildren: [
+        if (showAttribution)
+          AttributionWidget(
+            attributionBuilder: (context) => Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text('© OpenStreetMap contributors'),
+            ),
+          ),
+      ],
       layers: [
-        buildTileLayerOptions(showAttribution),
+        buildTileLayerOptions(),
         CircleLayerOptions(
           circles: [
             if (trackLocation != null)
@@ -167,7 +175,9 @@ class _StopMapState extends ConsumerState<StopMap> {
                     Anchor(15.0, trackLocation == null ? 5.0 : 12.0)),
                 builder: (ctx) => Icon(
                   trackLocation == null ? Icons.location_pin : Icons.adjust,
-                  color: trackLocation == null ? Colors.black : Colors.black.withOpacity(0.3),
+                  color: trackLocation == null
+                      ? Colors.black
+                      : Colors.black.withOpacity(0.3),
                   size: 24.0,
                 ),
               ),

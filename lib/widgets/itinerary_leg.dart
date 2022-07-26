@@ -204,7 +204,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
             allowPanningOnScrollingParent: false,
           ),
           layers: [
-            buildTileLayerOptions(false),
+            buildTileLayerOptions(),
             CircleLayerOptions(
               circles: [
                 if (location != null)

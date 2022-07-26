@@ -72,7 +72,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
     }, detached: () async {
       detachedOn = DateTime.now();
     });
-    WidgetsBinding.instance?.addObserver(lifecycleObserver);
+    WidgetsBinding.instance.addObserver(lifecycleObserver);
 
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
       ref.refresh(arrivalsProvider(nearestStop));
@@ -83,7 +83,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
   @override
   void dispose() {
     _timer.cancel();
-    WidgetsBinding.instance?.removeObserver(lifecycleObserver);
+    WidgetsBinding.instance.removeObserver(lifecycleObserver);
     super.dispose();
   }
 

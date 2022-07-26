@@ -2,7 +2,7 @@
   "loadingStops": "Peatuste laadimine...",
   "acquiringLocation": "Teie leidmine...",
   "myLocation": "Minu asukoht",
-  "next": "järgmine: {time}",
+  "next": "järgmine {time}",
   "search": "Otsing",
   "chooseOnMap": "Valida kaardil...",
   "showMap": "Kaart",

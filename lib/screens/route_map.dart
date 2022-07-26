@@ -30,7 +30,7 @@ class _RoutePageState extends State<RoutePage> {
   Path? before;
   Path? after;
   int stopIndex = 0;
-  bool showLabels = false;
+  bool showLabels = true;
   final tf = DateFormat.Hm();
   late Timer locationsTimer;
   List<BusLocation> locations = const [];
