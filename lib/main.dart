@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_bus/providers/language.dart';
 import 'package:quick_bus/screens/loading.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,9 +10,9 @@ void main() {
   runApp(ProviderScope(child: QuickBusApp()));
 }
 
-class QuickBusApp extends StatelessWidget {
+class QuickBusApp extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: kAppTitle,
       // debugShowCheckedModeBanner: false,
@@ -25,11 +26,8 @@ class QuickBusApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        Locale('en', 'US'),
-        Locale('et'),
-        Locale('ru'),
-      ],
+      supportedLocales: kSupportedLocales,
+      locale: ref.watch(languageProvider),
       home: LoadingPage(),
     );
   }

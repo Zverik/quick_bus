@@ -5,6 +5,7 @@
 _Unreleased_
 
 * Long tap to move bookmarks around.
+* Language switcher on the main screen.
 * Upgraded all libraries.
 * Updates the default stops list.
 * Updated Estonian translation.

@@ -19,6 +19,7 @@ import 'package:quick_bus/screens/itinerary.dart';
 import 'package:quick_bus/screens/tutorial.dart';
 import 'package:quick_bus/widgets/arrivals_list.dart';
 import 'package:quick_bus/widgets/bookmark_row.dart';
+import 'package:quick_bus/widgets/lang_switch.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,6 +142,7 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
       appBar: AppBar(
         title: Text(kAppTitle),
         actions: [
+          LangSwitchButton(),
           seenTutorial
               ? Container()
               : IconButton(
