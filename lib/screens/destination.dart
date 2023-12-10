@@ -13,7 +13,8 @@ class DestinationPage extends ConsumerStatefulWidget {
   final LatLng? destination;
   final bool zoomCloser;
 
-  const DestinationPage({required this.start, this.destination, this.zoomCloser = false});
+  const DestinationPage(
+      {required this.start, this.destination, this.zoomCloser = false});
 
   @override
   _DestinationPageState createState() => _DestinationPageState();
@@ -30,7 +31,7 @@ class _DestinationPageState extends ConsumerState<DestinationPage> {
     mapController.mapEventStream.listen((event) {
       if (event is MapEventMove) {
         setState(() {
-          center = mapController.center;
+          center = mapController.camera.center;
         });
       }
     });
@@ -58,24 +59,25 @@ class _DestinationPageState extends ConsumerState<DestinationPage> {
       body: FlutterMap(
         mapController: mapController,
         options: MapOptions(
-          center: center,
-          zoom: widget.zoomCloser ? 15.0 : 13.0,
+          initialCenter: center,
+          initialZoom: widget.zoomCloser ? 15.0 : 13.0,
           minZoom: 11.0,
           maxZoom: 17.0,
-          interactiveFlags: InteractiveFlag.all ^ (InteractiveFlag.rotate),
+          interactionOptions: InteractionOptions(
+              flags: InteractiveFlag.all ^ (InteractiveFlag.rotate)),
           onTap: (tapPos, latlng) {
-            final zoom = mapController.zoom;
+            final zoom = mapController.camera.zoom;
             mapController.move(latlng, zoom >= 17 ? zoom : zoom + 2);
           },
         ),
-        layers: [
+        children: [
           buildTileLayerOptions(),
-          MarkerLayerOptions(
+          MarkerLayer(
             markers: [
               Marker(
                 point: center,
-                anchorPos: AnchorPos.exactly(Anchor(15.0, 5.0)),
-                builder: (ctx) => Icon(Icons.location_pin),
+                alignment: Alignment(0.0, -0.7),
+                child: Icon(Icons.location_pin),
               ),
             ],
           ),

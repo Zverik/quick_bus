@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
 import 'package:quick_bus/models/route_element.dart';
@@ -20,8 +18,7 @@ class ItineraryLeg extends ConsumerStatefulWidget {
   final RouteElement? lastLeg;
   final RouteElement? nextLeg;
 
-  ItineraryLeg(this.leg,
-      {this.isPortrait = true, this.lastLeg, this.nextLeg});
+  ItineraryLeg(this.leg, {this.isPortrait = true, this.lastLeg, this.nextLeg});
 
   @override
   _ItineraryLegState createState() => _ItineraryLegState();
@@ -71,22 +68,24 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
       int? waitTimeMinutes;
       if (arrival != null && widget.lastLeg is TransitRouteElement) {
         waitTimeMinutes =
-        (element.departure.difference(widget.lastLeg!.arrival).inSeconds /
-            60)
-            .round();
+            (element.departure.difference(widget.lastLeg!.arrival).inSeconds /
+                    60)
+                .round();
       }
       if (element.stopCount <= 3) {
         if (waitTimeMinutes != null && waitTimeMinutes >= 1) {
-          description = parseTaggedText(
-              loc.waitAndRideStops(loc.fullMinutes(waitTimeMinutes), loc.stops(element.stopCount), destination));
+          description = parseTaggedText(loc.waitAndRideStops(
+              loc.fullMinutes(waitTimeMinutes),
+              loc.stops(element.stopCount),
+              destination));
         } else {
           description = parseTaggedText(
               loc.rideStops(loc.stops(element.stopCount), destination));
         }
       } else {
         if (waitTimeMinutes != null && waitTimeMinutes >= 1) {
-          description =
-              parseTaggedText(loc.waitAndRideTime(loc.fullMinutes(waitTimeMinutes), element.arrival, destination));
+          description = parseTaggedText(loc.waitAndRideTime(
+              loc.fullMinutes(waitTimeMinutes), element.arrival, destination));
         } else {
           description =
               parseTaggedText(loc.rideTime(element.arrival, destination));
@@ -97,7 +96,8 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
       pathColor = Colors.black;
       pathDotted = true;
       final walkMeters = widget.leg.distanceMeters;
-      final walkDistance = walkMeters <= 30 ? walkMeters : (walkMeters / 50).round() * 50;
+      final walkDistance =
+          walkMeters <= 30 ? walkMeters : (walkMeters / 50).round() * 50;
       String walkTime = '';
       if (widget.lastLeg != null && widget.nextLeg is TransitRouteElement) {
         final duration = widget.nextLeg!.departure
@@ -105,9 +105,11 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
             .inSeconds;
         final speed = walkMeters / duration * 3.6;
         if (speed < 2.0) {
-          walkTime = ' ' + loc.noHurry(loc.fullMinutes((duration / 60).floor()));
+          walkTime =
+              ' ' + loc.noHurry(loc.fullMinutes((duration / 60).floor()));
         } else {
-          walkTime = ' ' + loc.youGotTime(loc.fullMinutes((duration / 60).floor()));
+          walkTime =
+              ' ' + loc.youGotTime(loc.fullMinutes((duration / 60).floor()));
         }
       }
       description =
@@ -195,27 +197,29 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
       height: 200.0,
       child: FlutterMap(
           options: MapOptions(
-            bounds: mapBounds,
-            boundsOptions: FitBoundsOptions(
+            initialCameraFit: CameraFit.bounds(
+              bounds: mapBounds,
               padding: const EdgeInsets.all(25.0),
             ),
             minZoom: 10.0,
             maxZoom: 18.0,
-            allowPanningOnScrollingParent: false,
+            interactionOptions: InteractionOptions(
+              flags: InteractiveFlag.pinchMove | InteractiveFlag.pinchZoom,
+            ),
           ),
-          layers: [
+          children: [
             buildTileLayerOptions(),
-            CircleLayerOptions(
-              circles: [
-                if (location != null)
+            if (location != null)
+              CircleLayer(
+                circles: [
                   CircleMarker(
                     point: location,
                     color: Colors.blue.withOpacity(0.6),
                     radius: 20.0,
                   ),
-              ],
-            ),
-            PolylineLayerOptions(polylines: [
+                ],
+              ),
+            PolylineLayer(polylines: [
               Polyline(
                 points: widget.leg.path.coordinates,
                 color: pathColor.withOpacity(0.7),
@@ -224,7 +228,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
               )
             ]),
             if (widget.leg is TransitRouteElement)
-              CircleLayerOptions(circles: [
+              CircleLayer(circles: [
                 for (var stop
                     in (widget.leg as TransitRouteElement).intermediateStops)
                   CircleMarker(
@@ -235,7 +239,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
                     radius: 3.0,
                   )
               ]),
-            CircleLayerOptions(circles: [
+            CircleLayer(circles: [
               CircleMarker(
                 point: widget.leg.path.last,
                 color: Colors.yellow,

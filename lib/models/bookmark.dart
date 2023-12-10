@@ -30,4 +30,12 @@ class Bookmark {
       'created': createdOn.millisecondsSinceEpoch,
     };
   }
+
+  @override
+  int get hashCode => id ?? (emoji+name).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is Bookmark && id == other.id && name == other.name;
+  }
 }

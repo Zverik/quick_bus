@@ -117,15 +117,16 @@ class _RoutePageState extends State<RoutePage> {
     } else {
       body = FlutterMap(
         options: MapOptions(
-          center: widget.arrival.stop.location,
-          zoom: 13.0,
+          initialCenter: widget.arrival.stop.location,
+          initialZoom: 13.0,
           minZoom: 10.0,
           maxZoom: 18.0,
-          interactiveFlags: InteractiveFlag.all ^ InteractiveFlag.rotate,
+          interactionOptions: InteractionOptions(
+              flags: InteractiveFlag.all ^ (InteractiveFlag.rotate)),
         ),
-        layers: [
+        children: [
           buildTileLayerOptions(),
-          PolylineLayerOptions(
+          PolylineLayer(
             polylines: [
               if (before != null)
                 Polyline(
@@ -143,18 +144,15 @@ class _RoutePageState extends State<RoutePage> {
           ),
           for (var stop in route!.stops.sublist(stopIndex))
             // When we get times: copyWithName('${stop.stop.name} ${tf.format(stop.expected)}')
-            StopWithLabelOptions(context, stop.stop, showLabel: showLabels),
-          MarkerLayerOptions(markers: [
+            StopWithLabel(stop.stop, showLabel: showLabels),
+          MarkerLayer(markers: [
             for (var location in locations)
               Marker(
                 point: location.location,
-                anchorPos: AnchorPos.exactly(Anchor(
-                  kBusMarkerSize / 2,
-                  kBusMarkerSize / 2,
-                )),
+                alignment: Alignment.center,
                 height: kBusMarkerSize,
                 width: kBusMarkerSize,
-                builder: (context) => Transform.rotate(
+                child: Transform.rotate(
                   angle: 3.1415925 / 180 * (location.direction + 45),
                   child: Container(
                     decoration: BoxDecoration(

@@ -80,7 +80,7 @@
       }
     }
   },
-  "fullMinutes": "{value,plural, =1{{value} minute}, =few{{value} minutes}, =other{{value} minutes}}",
+  "fullMinutes": "{value,plural, =1{{value} minute} few{{value} minutes} other{{value} minutes}}",
   "@fullMinutes": {
     "description": "Duration in minutes.",
     "placeholders": {
@@ -175,7 +175,7 @@
   "@walkDestination": {
     "description": "Generic name of a destination waypoint."
   },
-  "stops": "{stops,plural, =1{{stops} stop}, =few{{stops} stops}, =other{{stops} stops}}",
+  "stops": "{stops,plural, =1{{stops} stop} few{{stops} stops} other{{stops} stops}}",
   "@stops": {
     "description": "Number of stops for an itinerary text.",
     "placeholders": {

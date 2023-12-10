@@ -34,7 +34,7 @@ android {
 
     defaultConfig {
         applicationId "info.zverev.ilya.quick_bus"
-        minSdkVersion 16
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

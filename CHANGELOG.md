@@ -1,5 +1,14 @@
 # Easy Transit Tallinn Change Log
 
+## 1.5.0
+
+_Unreleased_
+
+* Long tap to move bookmarks around.
+* Upgraded all libraries.
+* Updates the default stops list.
+* Updated Estonian translation.
+
 ## 1.4.0
 
 _Released on 2022-07-26_

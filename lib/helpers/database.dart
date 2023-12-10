@@ -39,8 +39,9 @@ class DatabaseHelper {
     await database.execute(
         "create table $ROUTES (otp_id text, number text, mode text, headsign text)");
     // Last searches
+    final destV4Update = version >= 4 ? 'id integer primary key,' : '';
     await database.execute(
-        "create table $DESTINATIONS (id integer primary key, lat real, lon real, name text, last_used integer)");
+        "create table $DESTINATIONS ($destV4Update lat real, lon real, name text, last_used integer)");
     // Bookmarked route plan
     await database
         .execute("create table $PLANS (itinerary text, arrival_on integer)");
@@ -68,6 +69,7 @@ class DatabaseHelper {
     }
     if (newVersion >= 4 && oldVersion < 4) {
       await database.execute("alter table $DESTINATIONS add id integer");
+      await database.execute("update $DESTINATIONS set id = rowid;");
     }
   }
 }

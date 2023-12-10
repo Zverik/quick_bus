@@ -95,7 +95,7 @@ class _AddBookmarkPageState extends State<AddBookmarkPage> {
                   });
                 },
                 config: const Config(
-                  showRecentsTab: false,
+                  recentTabBehavior: RecentTabBehavior.NONE,
                   initCategory: Category.TRAVEL,
                 ),
               ),

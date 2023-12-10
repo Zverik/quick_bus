@@ -6,7 +6,7 @@ class CachedTileProvider extends TileProvider {
   CachedTileProvider();
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+  ImageProvider getImage(TileCoordinates coords, TileLayer options) {
     return CachedNetworkImageProvider(
       getTileUrl(coords, options),
       // Maybe replace cacheManager later.
@@ -14,8 +14,8 @@ class CachedTileProvider extends TileProvider {
   }
 }
 
-TileLayerOptions buildTileLayerOptions() {
-  return TileLayerOptions(
+TileLayer buildTileLayerOptions() {
+  return TileLayer(
     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileProvider: CachedTileProvider(),
   );

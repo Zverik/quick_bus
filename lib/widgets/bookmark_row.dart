@@ -1,47 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:quick_bus/constants.dart';
-import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/models/bookmark.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:quick_bus/screens/search.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:reorderables/reorderables.dart';
 
 class BookmarkRow extends StatelessWidget {
   final List<Bookmark> bookmarks;
   final LatLng location;
   final bookmarkScrollController = ScrollController();
   final bool isPortrait;
+  final Function(int, int) onReorder;
 
   BookmarkRow(this.location, this.bookmarks,
-      {Orientation? orientation})
+      {Orientation? orientation, required this.onReorder})
       : isPortrait = orientation == null || orientation == Orientation.portrait;
-
-  bool isFarEnough() {
-    // When it's needed again, employ the provider
-    // final trackLocation = ref.read(geolocationProvider);
-    final LatLng? trackLocation = null;
-    if (trackLocation == null) return false;
-    final distance = DistanceEquirectangular();
-    return distance(trackLocation, location) > kRouteToSelfDistance;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final bookmarks = isFarEnough()
-        ? [
-            Bookmark(
-              name: AppLocalizations.of(context)!.myLocation,
-              location: location, // ref.watch(geolocationProvider),
-              emoji: '📍',
-            ),
-            ...this.bookmarks
-          ]
-        : this.bookmarks;
     final bookmarkIcons = <Widget>[
-      for (var bookmark in bookmarks)
+      for (var bookmark in this.bookmarks)
         TextButton(
+          key: ValueKey(bookmark.hashCode),
           onPressed: () {
             Navigator.push(
                 context,
@@ -63,19 +45,27 @@ class BookmarkRow extends StatelessWidget {
           ),
         ),
     ];
+
+    final direction = isPortrait ? Axis.horizontal : Axis.vertical;
     final children = <Widget>[
       Expanded(
         flex: 100,
-        child: FadingEdgeScrollView.fromSingleChildScrollView(
-          shouldDisposeScrollController: true,
-          child: SingleChildScrollView(
-            controller: bookmarkScrollController,
-            scrollDirection: isPortrait ? Axis.horizontal : Axis.vertical,
+        // child: FadingEdgeScrollView.fromSingleChildScrollView(
+        //   shouldDisposeScrollController: true,
+        //   child: SingleChildScrollView(
+        //     controller: bookmarkScrollController,
+        //     scrollDirection: direction,
             child: isPortrait
-                ? Row(children: bookmarkIcons)
-                : Column(children: bookmarkIcons),
-          ),
-        ),
+                ? ReorderableRow(
+                    children: bookmarkIcons,
+                    onReorder: onReorder,
+                    scrollController: bookmarkScrollController,
+              draggingWidgetOpacity: 0.0,
+                  )
+                : ReorderableColumn(
+                    children: bookmarkIcons, onReorder: onReorder),
+          // ),
+        // ),
       ),
       Spacer(),
       IconButton(
@@ -94,9 +84,7 @@ class BookmarkRow extends StatelessWidget {
     return Container(
       // color: Theme.of(context).colorScheme.primary,
       color: Colors.grey.shade300,
-      child: Flex(
-          direction: isPortrait ? Axis.horizontal : Axis.vertical,
-          children: children),
+      child: Flex(direction: direction, children: children),
     );
   }
 }

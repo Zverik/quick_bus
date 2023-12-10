@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -68,20 +67,20 @@ class _StopMapState extends ConsumerState<StopMap> {
 
   void onMapEvent(MapEvent event) {
     if (event is MapEventMove) {
-      updateNearestStops(event.targetCenter);
+      updateNearestStops(event.camera.center);
       if (event.source != MapEventSource.mapController) {
-        ref.read(trackingProvider.state).state = false;
-        if (widget.onDrag != null) widget.onDrag!(event.targetCenter);
+        ref.read(trackingProvider.notifier).state = false;
+        if (widget.onDrag != null) widget.onDrag!(event.camera.center);
       }
     } else if (event is MapEventMoveEnd) {
       if (widget.onDragEnd != null &&
           event.source != MapEventSource.mapController)
-        widget.onDragEnd!(event.center);
+        widget.onDragEnd!(event.camera.center);
     }
   }
 
   void onControllerLocation(LatLng location, bool emitDrag) {
-    mapController.move(location, mapController.zoom);
+    mapController.move(location, mapController.camera.zoom);
     if (emitDrag && widget.onDrag != null) widget.onDrag!(location);
   }
 
@@ -117,7 +116,7 @@ class _StopMapState extends ConsumerState<StopMap> {
     // When tracking location, move map and notify the poi list.
     ref.listen<LatLng?>(geolocationProvider, (_, LatLng? location) {
       if (location != null && ref.watch(trackingProvider)) {
-        mapController.move(location, mapController.zoom);
+        mapController.move(location, mapController.camera.zoom);
         if (widget.onDragEnd != null) widget.onDragEnd!(location);
         if (widget.onTrack != null) widget.onTrack!(location);
       }
@@ -126,7 +125,7 @@ class _StopMapState extends ConsumerState<StopMap> {
     // When turning the tracking on, move the map immediately.
     ref.listen(trackingProvider, (_, bool newState) {
       if (trackLocation != null && newState) {
-        mapController.move(trackLocation, mapController.zoom);
+        mapController.move(trackLocation, mapController.camera.zoom);
         if (widget.onDragEnd != null) widget.onDragEnd!(trackLocation);
         if (widget.onTrack != null) widget.onTrack!(trackLocation);
       }
@@ -135,24 +134,17 @@ class _StopMapState extends ConsumerState<StopMap> {
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
-        center: widget.location, // This does not work :(
-        zoom: 16.0,
+        initialCenter: widget.location,
+        initialZoom: 16.0,
         minZoom: 13.0,
         maxZoom: 18.0,
-        interactiveFlags: InteractiveFlag.drag | InteractiveFlag.pinchZoom,
+        interactionOptions: InteractionOptions(
+          flags: InteractiveFlag.drag | InteractiveFlag.pinchZoom,
+        ),
       ),
-      nonRotatedChildren: [
-        if (showAttribution)
-          AttributionWidget(
-            attributionBuilder: (context) => Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text('© OpenStreetMap contributors'),
-            ),
-          ),
-      ],
-      layers: [
+      children: [
         buildTileLayerOptions(),
-        CircleLayerOptions(
+        CircleLayer(
           circles: [
             if (trackLocation != null)
               CircleMarker(
@@ -160,94 +152,112 @@ class _StopMapState extends ConsumerState<StopMap> {
                 color: Colors.blue.withOpacity(0.6),
                 radius: 15.0,
               ),
-            for (var stop in nearestStops)
-              StopWithLabelOptions.getCircleMarker(stop),
+            for (var stop in nearestStops) StopWithLabel.getCircleMarker(stop),
           ],
         ),
-        if (widget.chosenStop != null)
-          StopWithLabelOptions(context, widget.chosenStop!),
+        if (widget.chosenStop != null) StopWithLabel(widget.chosenStop!),
         if (!ref.watch(trackingProvider))
-          MarkerLayerOptions(
+          MarkerLayer(
             markers: [
-              Marker(
-                point: widget.location,
-                anchorPos: AnchorPos.exactly(
-                    Anchor(15.0, trackLocation == null ? 5.0 : 12.0)),
-                builder: (ctx) => Icon(
-                  trackLocation == null ? Icons.location_pin : Icons.adjust,
-                  color: trackLocation == null
-                      ? Colors.black
-                      : Colors.black.withOpacity(0.3),
-                  size: 24.0,
+              if (trackLocation == null)
+                Marker(
+                  point: widget.location,
+                  alignment: Alignment(0.0, -0.7),
+                  child: Icon(
+                    Icons.location_pin,
+                    color: Colors.black,
+                    size: 24.0,
+                  ),
                 ),
-              ),
+              if (trackLocation != null)
+                Marker(
+                  point: widget.location,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.adjust,
+                    color: Colors.black.withOpacity(0.3),
+                    size: 24.0,
+                  ),
+                ),
             ],
+          ),
+        if (showAttribution)
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Text('© OpenStreetMap contributors'),
+            ),
           ),
       ],
     );
   }
 }
 
-class StopWithLabelOptions extends GroupLayerOptions {
+class StopWithLabel extends StatelessWidget {
   final BusStop stop;
-  final BuildContext context;
   final bool showLabel;
 
-  StopWithLabelOptions(this.context, this.stop, {this.showLabel = true})
-      : super() {
+  StopWithLabel(this.stop, {this.showLabel = true, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     final chosenStopLabelSize =
         _textSize(context, stop.name, TextStyle(fontSize: 12.0));
-    group = [
-      if (showLabel)
-        MarkerLayerOptions(
-          markers: [
-            Marker(
-              point: stop.location,
-              // anchorPos: AnchorPos.align(AnchorAlign.right),
-              anchorPos: AnchorPos.exactly(Anchor(
-                chosenStopLabelSize.width + 14.0,
-                10.0,
-              )),
-              height: 20.0,
-              width: chosenStopLabelSize.width + 24.0,
-              builder: (context) => Container(
-                padding: const EdgeInsets.only(
-                  left: 18.0,
-                  right: 2.0,
-                  top: 2.5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 1.0,
+    final markerWidth = chosenStopLabelSize.width + 24.0;
+    return Stack(
+      children: [
+        if (showLabel)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: stop.location,
+                alignment: Alignment(1.0 - 20 / markerWidth, 0.0),
+                height: 20.0,
+                width: markerWidth,
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 18.0,
+                    right: 2.0,
+                    top: 2.5,
                   ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    bottomLeft: Radius.circular(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      bottomLeft: Radius.circular(10.0),
+                    ),
+                  ),
+                  child: Text(
+                    stop.name,
+                    style: TextStyle(fontSize: 12.0),
                   ),
                 ),
-                child: Text(
-                  stop.name,
-                  style: TextStyle(fontSize: 12.0),
-                ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
+        CircleLayer(
+          circles: [getCircleMarker(stop.location)],
         ),
-      CircleLayerOptions(
-        circles: [getCircleMarker(stop.location)],
-      ),
-    ];
+      ],
+    );
   }
 
   // From https://stackoverflow.com/a/62536187
   static Size _textSize(BuildContext context, String text, TextStyle style) {
     final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
+      text: TextSpan(
+        text: text,
+        style: style.copyWith(
+          fontSize: MediaQuery.textScalerOf(context).scale(style.fontSize!),
+        ),
+      ),
       maxLines: 1,
       textDirection: TextDirection.ltr,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor,
     )..layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter.size;
   }

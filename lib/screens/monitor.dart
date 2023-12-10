@@ -169,7 +169,9 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
             onPressed: ref.watch(trackingProvider)
                 ? null
                 : () {
-                    ref.read(geolocationProvider.notifier).enableTracking(context);
+                    ref
+                        .read(geolocationProvider.notifier)
+                        .enableTracking(context);
                   },
             icon: const Icon(Icons.my_location),
             tooltip: AppLocalizations.of(context)?.myLocation,
@@ -209,6 +211,13 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
               ref.watch(geolocationProvider) ?? location,
               ref.watch(bookmarkProvider),
               orientation: orientation,
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  ref
+                      .read(bookmarkProvider.notifier)
+                      .swapBookmarks(oldIndex, newIndex);
+                });
+              },
             ),
             Expanded(
                 child: arrivalsStop == null
