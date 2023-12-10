@@ -1,13 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:quick_bus/helpers/log_store.dart';
 import 'package:quick_bus/providers/language.dart';
 import 'package:quick_bus/screens/loading.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:logging/logging.dart';
 
 void main() {
-  runApp(ProviderScope(child: QuickBusApp()));
+  Logger.root.level = Level.INFO;
+  Logger.root.onRecord.listen((event) {
+    logStore.addFromLogger(event);
+  });
+  runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+    FlutterError.onError = (details) {
+      logStore.addFromFlutter(details);
+      FlutterError.presentError(details);
+    };
+    runApp(ProviderScope(child: QuickBusApp()));
+  }, (error, stack) {logStore.addFromZone(error, stack); });
 }
 
 class QuickBusApp extends ConsumerWidget {
@@ -32,4 +47,3 @@ class QuickBusApp extends ConsumerWidget {
     );
   }
 }
-

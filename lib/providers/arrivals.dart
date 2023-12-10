@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:quick_bus/helpers/arrivals_cache.dart';
 import 'package:quick_bus/helpers/route_query.dart';
 import 'package:quick_bus/helpers/siri.dart';
@@ -8,15 +9,16 @@ import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 
 final _arrivalsCache = ArrivalsCache();
+final _logger = Logger('ArrivalsProvider');
 
-final arrivalsProvider = FutureProvider
-    .family<List<Arrival>, BusStop?>((ref, stop) async {
+final arrivalsProvider =
+    FutureProvider.family<List<Arrival>, BusStop?>((ref, stop) async {
   if (stop == null) return [];
   final cached = _arrivalsCache.find(stop);
   if (cached != null) return cached;
 
-  // final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
-  // print('Updating arrivals for $stopStr');
+  final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
+  _logger.info('Updating arrivals for $stopStr');
   List<Arrival> arrivals = const [];
   try {
     try {
@@ -37,6 +39,7 @@ final arrivalsProvider = FutureProvider
 
 final multipleArrivalsProvider = FutureProvider.autoDispose
     .family<List<Arrival>, BusStop?>((ref, stop) async {
+  _logger.info('Updating arrivals for stop $stop and stops around.');
   if (stop == null) return [];
   List<BusStop> stops = [stop, ...stop.stopsAround];
 
@@ -49,6 +52,7 @@ final multipleArrivalsProvider = FutureProvider.autoDispose
       errorMessage = e.message;
     }
   }
+  _logger.info('Update done, ${result.length} results, error=$errorMessage.');
   if (result.isEmpty && errorMessage != null)
     throw ArrivalFetchError(errorMessage);
   return result;

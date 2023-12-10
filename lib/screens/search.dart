@@ -10,6 +10,7 @@ import 'package:quick_bus/providers/search_history.dart';
 import 'package:quick_bus/screens/destination.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:quick_bus/screens/log.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   final LatLng start;
@@ -173,6 +174,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               doSearch(value);
             },
             onChanged: (value) {
+              if (value == 'syslog') {
+                controller.clear();
+                value = '';
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => LogDisplayPage()));
+                return;
+              }
               setState(() {
                 query = value;
               });

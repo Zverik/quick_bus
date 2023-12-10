@@ -33,6 +33,7 @@
   "noStopsNearby": "Saabumisaegade vaatamiseks tulge peatusele lähemale või lohistage kaarti.",
   "noArrivals": "Täna pole saabumisi.",
   "arrivalsError": "Saabumise ajakava ei saanud värskendada.",
+  "arrivalsTryAgain": "Proovi uuesti",
   "bookmarkTarget": "Lohistage siia, et alustada salvestatud kohast",
   "addBookmark": "Lisage järjehoidja",
   "bookmarkName": "Järjehoidja nimi",

@@ -6,6 +6,8 @@ _Unreleased_
 
 * Long tap to move bookmarks around.
 * Language switcher on the main screen.
+* A button to refresh arrivals in case of an error.
+* Logging all events, type "syslog" in the search bar to see the log.
 * Upgraded all libraries.
 * Updates the default stops list.
 * Updated Estonian translation.

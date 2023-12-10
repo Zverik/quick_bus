@@ -15,12 +15,12 @@ class ArrivalsListContainer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
       onRefresh: () {
-        ref.refresh(multipleArrivalsProvider(arrivalsStop));
-        return ref.read(multipleArrivalsProvider(arrivalsStop).future);
+        return ref.refresh(multipleArrivalsProvider(arrivalsStop).future);
       },
       child: Consumer(
         builder: (context, watch, child) {
-          final arrivalsValue = ref.watch(multipleArrivalsProvider(arrivalsStop));
+          final arrivalsValue =
+              ref.watch(multipleArrivalsProvider(arrivalsStop));
           return arrivalsValue.when(
             data: (data) {
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -55,7 +55,14 @@ class ArrivalsListContainer extends ConsumerWidget {
                     Text(
                       e.toString(),
                       style: TextStyle(fontSize: 12.0),
-                    )
+                    ),
+                    SizedBox(height: 10.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(multipleArrivalsProvider(arrivalsStop));
+                      },
+                      child: Text(AppLocalizations.of(context)!.arrivalsTryAgain),
+                    ),
                   ],
                 ),
               ),

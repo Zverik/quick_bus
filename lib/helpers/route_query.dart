@@ -2,6 +2,7 @@ import 'dart:convert' show utf8, jsonDecode;
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/models/route.dart';
@@ -36,10 +37,13 @@ class PatternData {
 }
 
 class RouteQuery {
+  static final _logger = Logger('RouteQuery');
+
   Future<dynamic> performOTPQuery(
       String method, Map<String, String> params) async {
     var uri = Uri.http(kOTPEndpoint, '/otp/routers/default/$method', params);
     var response = await http.get(uri);
+    _logger.info('Querying $uri, response ${response.statusCode}');
 
     if (response.statusCode != 200) {
       throw RouteQueryNetworkError(response.statusCode, uri);
