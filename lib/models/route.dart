@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'modes.dart';
 
 class TransitRoute {
@@ -49,5 +48,5 @@ class TransitRoute {
       other.headsign == headsign;
 
   @override
-  int get hashCode => hashValues(mode, number, headsign);
+  int get hashCode => Object.hash(mode, number, headsign);
 }

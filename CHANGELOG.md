@@ -7,6 +7,7 @@ _Unreleased_
 * Long tap to move bookmarks around.
 * Language switcher on the main screen.
 * A button to refresh arrivals in case of an error.
+* When Siri reports the next arrival to be in 15 minutes or more, double-checking with GTFS.
 * Logging all events, type "syslog" in the search bar to see the log.
 * Upgraded all libraries.
 * Updates the default stops list.

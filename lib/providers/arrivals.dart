@@ -10,6 +10,7 @@ import 'package:quick_bus/models/bus_stop.dart';
 
 final _arrivalsCache = ArrivalsCache();
 final _logger = Logger('ArrivalsProvider');
+const kMaxSiriWait = Duration(minutes: 15);
 
 final arrivalsProvider =
     FutureProvider.family<List<Arrival>, BusStop?>((ref, stop) async {
@@ -17,7 +18,8 @@ final arrivalsProvider =
   final cached = _arrivalsCache.find(stop);
   if (cached != null) return cached;
 
-  final stopStr = 'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
+  final stopStr =
+      'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
   _logger.info('Updating arrivals for $stopStr');
   List<Arrival> arrivals = const [];
   try {
@@ -26,7 +28,31 @@ final arrivalsProvider =
     } on SiriDownloadError {
       // query OTP, no worries
     }
-    if (arrivals.isEmpty) arrivals = await RouteQuery().getArrivals(stop);
+    arrivals.sort((a, b) => a.expected.compareTo(b.expected));
+    if (arrivals.isEmpty) {
+      arrivals = await RouteQuery().getArrivals(stop);
+    } else if (arrivals.first.expected.difference(DateTime.now()) >=
+        kMaxSiriWait) {
+      try {
+        final otpArrivals = await RouteQuery().getArrivals(stop);
+        if (otpArrivals.isNotEmpty) {
+          otpArrivals.sort((a, b) => a.expected.compareTo(b.expected));
+          final sameArrival = otpArrivals
+              .where((a) => a.route == arrivals.first.route)
+              .firstOrNull;
+          _logger.info('First siri arrival is ${arrivals.first}, '
+              'first OTP arrival is ${otpArrivals.first}. '
+              'Same arrival is $sameArrival.');
+          if (sameArrival == null ||
+              sameArrival.expected.difference(arrivals.first.expected).abs() >
+                  Duration(minutes: 2)) {
+            arrivals = otpArrivals;
+          }
+        }
+      } on Exception catch (_) {
+        // do nothing, we'll use the siri arrivals.
+      }
+    }
   } on SocketException catch (e) {
     // TODO: show dialog, but just one time.
     throw ArrivalFetchError(e.toString());
