@@ -20,8 +20,8 @@ final arrivalsProvider =
 
   final stopStr =
       'stop ${stop.name}, id=${stop.gtfsId}, siriId=${stop is SiriBusStop ? stop.siriId : '<none>'}';
-  _logger.info('Updating arrivals for $stopStr');
-  List<Arrival> arrivals = const [];
+  _logger.fine('Updating arrivals for $stopStr');
+  List<Arrival> arrivals = [];
   try {
     try {
       if (stop is SiriBusStop) arrivals = await SiriHelper().getArrivals(stop);
@@ -36,7 +36,6 @@ final arrivalsProvider =
       try {
         final otpArrivals = await RouteQuery().getArrivals(stop);
         if (otpArrivals.isNotEmpty) {
-          otpArrivals.sort((a, b) => a.expected.compareTo(b.expected));
           final sameArrival = otpArrivals
               .where((a) => a.route == arrivals.first.route)
               .firstOrNull;
@@ -44,7 +43,7 @@ final arrivalsProvider =
               'first OTP arrival is ${otpArrivals.first}. '
               'Same arrival is $sameArrival.');
           if (sameArrival == null ||
-              sameArrival.expected.difference(arrivals.first.expected).abs() >
+              sameArrival.scheduled.difference(arrivals.first.scheduled).abs() >
                   Duration(minutes: 2)) {
             arrivals = otpArrivals;
           }
@@ -55,8 +54,10 @@ final arrivalsProvider =
     }
   } on SocketException catch (e) {
     // TODO: show dialog, but just one time.
+    _logger.severe('Failed to get arrivals for $stop', e);
     throw ArrivalFetchError(e.toString());
   } on Exception catch (e) {
+    _logger.severe('Failed to get arrivals for $stop', e);
     throw ArrivalFetchError(e.toString());
   }
   _arrivalsCache.add(stop, arrivals);
@@ -78,7 +79,7 @@ final multipleArrivalsProvider = FutureProvider.autoDispose
       errorMessage = e.message;
     }
   }
-  _logger.info('Update done, ${result.length} results, error=$errorMessage.');
+  _logger.fine('Update done, ${result.length} results, error=$errorMessage.');
   if (result.isEmpty && errorMessage != null)
     throw ArrivalFetchError(errorMessage);
   return result;

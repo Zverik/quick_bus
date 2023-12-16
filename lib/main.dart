@@ -11,7 +11,8 @@ import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  Logger.root.level = Level.INFO;
+  const isRelease = bool.fromEnvironment('dart.vm.product');
+  Logger.root.level = isRelease ? Level.WARNING : Level.INFO;
   Logger.root.onRecord.listen((event) {
     logStore.addFromLogger(event);
   });

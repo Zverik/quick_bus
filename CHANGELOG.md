@@ -2,7 +2,7 @@
 
 ## 1.5.0
 
-_Unreleased_
+_Released on 2023-12-16_
 
 * Long tap to move bookmarks around.
 * Language switcher on the main screen.

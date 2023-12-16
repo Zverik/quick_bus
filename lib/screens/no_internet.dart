@@ -30,7 +30,7 @@ class _NoInternetPageState extends State<NoInternetPage> {
     timer = Timer.periodic(Duration(seconds: 1), (timer) async {
       try {
         await http
-            .get(Uri.http(kHostToPing, '/'))
+            .get(Uri.https(kHostToPing, '/'))
             .timeout(Duration(seconds: 2));
         timer.cancel();
         Navigator.pop(context);
