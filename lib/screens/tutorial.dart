@@ -81,7 +81,7 @@ class TutorialPage extends ConsumerWidget {
           decoration: decoration,
         ),
       ],
-      isTopSafeArea: true,
+      safeAreaList: [false, false, true, false],
       done: Text(
         loc.tutorialDone,
         style: TextStyle(fontWeight: FontWeight.bold),

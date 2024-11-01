@@ -1,5 +1,12 @@
 # Easy Transit Tallinn Change Log
 
+## 1.6.0
+
+_Released on 2024-11-03_
+
+* Hopefully fixed the network error panel.
+* Dependency updates.
+
 ## 1.5.0
 
 _Released on 2023-12-16_

@@ -63,20 +63,25 @@ class _MonitorPageState extends ConsumerState<MonitorPage> {
         widget.location ?? LatLng(kDefaultLocation[0], kDefaultLocation[1]);
     if (widget.location == null) restoreLocation();
 
-    lifecycleObserver = LifecycleEventHandler(resumed: () async {
-      if (detachedOn == null ||
-          DateTime.now().difference(detachedOn!).inSeconds > 120) {
-        // When resuming after a minute, reset location to GPS.
-        ref.read(geolocationProvider.notifier).enableTracking();
-      }
-      detachedOn = null;
-    }, detached: () async {
-      detachedOn = DateTime.now();
-    });
+    lifecycleObserver = LifecycleEventHandler(
+      resumed: () async {
+        if (detachedOn == null ||
+            DateTime.now().difference(detachedOn!).inSeconds > 120) {
+          // When resuming after a minute, reset location to GPS.
+          ref.read(geolocationProvider.notifier).enableTracking();
+        }
+        detachedOn = null;
+      },
+      detached: () async {
+        detachedOn = DateTime.now();
+      },
+    );
     WidgetsBinding.instance.addObserver(lifecycleObserver);
 
     _timer = Timer.periodic(Duration(seconds: 30), (timer) {
-      ref.refresh(arrivalsProvider(nearestStop));
+      if (lifecycleObserver.isActive) {
+        ref.refresh(arrivalsProvider(nearestStop));
+      }
     });
     updateNearestStops();
   }
