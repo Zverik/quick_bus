@@ -2,7 +2,7 @@
 
 ## 1.6.0
 
-_Released on 2024-11-03_
+_Released on 2024-11-10_
 
 * Hopefully fixed the network error panel.
 * Dependency updates.
