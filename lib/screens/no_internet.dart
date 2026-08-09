@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:quick_bus/constants.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 
 Future showNoInternetDialog(BuildContext context) async {
   await showDialog(

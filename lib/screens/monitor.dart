@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:quick_bus/helpers/arrivals_cache.dart';
 import 'package:quick_bus/helpers/lifecycle.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/providers/arrivals.dart';

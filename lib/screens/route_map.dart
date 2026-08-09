@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:quick_bus/helpers/bus_locations.dart';
 import 'package:quick_bus/helpers/route_query.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,7 +13,6 @@ import 'package:quick_bus/helpers/equirectangular.dart';
 import 'package:quick_bus/helpers/path_utils.dart';
 import 'package:quick_bus/widgets/stop_map.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class RoutePage extends StatefulWidget {
   final Arrival arrival;
@@ -131,13 +131,13 @@ class _RoutePageState extends State<RoutePage> {
               if (before != null)
                 Polyline(
                   points: before!.coordinates,
-                  color: Colors.blue.shade400.withOpacity(0.4),
+                  color: Colors.blue.shade400.withValues(alpha: 0.4),
                   strokeWidth: 3.0,
                 ),
               if (after != null)
                 Polyline(
                   points: after!.coordinates,
-                  color: Colors.blue.shade800.withOpacity(0.9),
+                  color: Colors.blue.shade800.withValues(alpha: 0.9),
                   strokeWidth: 3.0,
                 ),
             ],

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/geocoder.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/providers/last_dest.dart';
 import 'package:quick_bus/providers/search_history.dart';
 import 'package:quick_bus/screens/destination.dart';
 import 'package:quick_bus/screens/find_route.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:quick_bus/screens/log.dart';
 
 class SearchPage extends ConsumerStatefulWidget {

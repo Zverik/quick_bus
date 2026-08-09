@@ -77,7 +77,7 @@ class LastDestinations extends StateNotifier<List<StoredDestination>> {
   }
 
   findName(StoredDestination dest) async {
-    var result = await Nominatim.reverseSearch(
+    var result = await Nominatim(userAgent: 'Easy Transit Tallinn').reverseSearch(
       lat: dest.destination.latitude,
       lon: dest.destination.longitude,
       addressDetails: true,

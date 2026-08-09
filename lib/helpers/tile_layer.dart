@@ -18,5 +18,6 @@ TileLayer buildTileLayerOptions() {
   return TileLayer(
     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileProvider: CachedTileProvider(),
+    userAgentPackageName: 'info.zverev.ilya.quick_bus',
   );
 }

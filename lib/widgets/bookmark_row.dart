@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/bookmark.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:quick_bus/screens/search.dart';
-import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:reorderables/reorderables.dart';
 
 class BookmarkRow extends StatelessWidget {

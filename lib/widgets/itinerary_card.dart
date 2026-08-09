@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:quick_bus/screens/itinerary.dart';
 import 'package:quick_bus/widgets/transport_icon.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class ItineraryCard extends StatelessWidget {
   final List<RouteElement> itinerary;

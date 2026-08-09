@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/route_query.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/bookmark.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:quick_bus/providers/bookmarks.dart';
@@ -8,7 +9,6 @@ import 'package:quick_bus/screens/add_bookmark.dart';
 import 'package:quick_bus/widgets/itinerary_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class FindRoutePage extends ConsumerStatefulWidget {
   final Bookmark? bookmark;

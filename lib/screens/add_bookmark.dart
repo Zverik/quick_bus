@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/bookmark.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class AddBookmarkPage extends StatefulWidget {
   final LatLng location;

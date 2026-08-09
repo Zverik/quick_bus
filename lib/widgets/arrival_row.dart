@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:quick_bus/widgets/transport_icon.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 
 class ArrivalRow extends StatefulWidget {

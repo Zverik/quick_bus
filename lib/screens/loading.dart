@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:quick_bus/constants.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/geolocation.dart';
 import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/screens/monitor.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class LoadingPage extends ConsumerStatefulWidget {
   @override

@@ -144,12 +144,12 @@ class _StopMapState extends ConsumerState<StopMap> {
       ),
       children: [
         buildTileLayerOptions(),
-        CircleLayer(
+        CircleLayer<Object>(
           circles: [
             if (trackLocation != null)
               CircleMarker(
                 point: trackLocation,
-                color: Colors.blue.withOpacity(0.6),
+                color: Colors.blue.withValues(alpha: 0.6),
                 radius: 15.0,
               ),
             for (var stop in nearestStops) StopWithLabel.getCircleMarker(stop),
@@ -175,7 +175,7 @@ class _StopMapState extends ConsumerState<StopMap> {
                   alignment: Alignment.center,
                   child: Icon(
                     Icons.adjust,
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     size: 24.0,
                   ),
                 ),
@@ -240,7 +240,7 @@ class StopWithLabel extends StatelessWidget {
               )
             ],
           ),
-        CircleLayer(
+        CircleLayer<Object>(
           circles: [getCircleMarker(stop.location)],
         ),
       ],

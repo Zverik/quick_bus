@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:quick_bus/constants.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/saved_plan.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_bus/widgets/itinerary_leg.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class ItineraryPage extends ConsumerStatefulWidget {
   final List<RouteElement> itinerary;

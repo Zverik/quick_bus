@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/tutorial_state.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class TutorialPage extends ConsumerWidget {
   static const String SEEN_TUTORIAL_KEY = "seen_tutorial";

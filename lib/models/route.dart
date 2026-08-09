@@ -16,7 +16,7 @@ class TransitRoute {
   }
 
   factory TransitRoute.fromGtfsIdHack(String gtfsId) {
-    final re = RegExp(r'_([a-z]+)_(\w+)$');
+    final re = RegExp(r'_([a-z]+)_(\w+)(-\d+)?$');
     var match = re.firstMatch(gtfsId);
     if (match == null) throw Exception('Cannot parse route id $gtfsId');
 

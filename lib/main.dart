@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:quick_bus/helpers/log_store.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/language.dart';
 import 'package:quick_bus/screens/loading.dart';
 import 'package:quick_bus/constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:logging/logging.dart';
 
 void main() {

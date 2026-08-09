@@ -3,10 +3,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/providers/last_dest.dart';
 import 'package:quick_bus/screens/find_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 
 class DestinationPage extends ConsumerStatefulWidget {
   final LatLng start;
@@ -48,7 +48,7 @@ class _DestinationPageState extends ConsumerState<DestinationPage> {
               final pos = await Geolocator.getLastKnownPosition();
               if (pos != null) {
                 final newPos = LatLng(pos.latitude, pos.longitude);
-                mapController.move(newPos, mapController.zoom);
+                mapController.move(newPos, mapController.camera.zoom);
               }
             },
             icon: const Icon(Icons.my_location),
@@ -86,7 +86,7 @@ class _DestinationPageState extends ConsumerState<DestinationPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.arrow_forward),
         onPressed: () {
-          final destination = mapController.center;
+          final destination = mapController.camera.center;
           ref.read(lastDestinationsProvider.notifier).add(destination);
           Navigator.pushReplacement(
               context,

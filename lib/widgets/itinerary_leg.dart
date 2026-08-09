@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_bus/helpers/tile_layer.dart';
+import 'package:quick_bus/l10n/l10n.dart';
 import 'package:quick_bus/models/route_element.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:quick_bus/helpers/siri.dart';
@@ -8,7 +9,6 @@ import 'package:quick_bus/providers/stop_list.dart';
 import 'package:quick_bus/models/arrival.dart';
 import 'package:quick_bus/models/bus_stop.dart';
 import 'package:quick_bus/widgets/arrival_row.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:quick_bus/helpers/rich_tags.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -214,7 +214,7 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
                 circles: [
                   CircleMarker(
                     point: location,
-                    color: Colors.blue.withOpacity(0.6),
+                    color: Colors.blue.withValues(alpha: 0.6),
                     radius: 20.0,
                   ),
                 ],
@@ -222,9 +222,9 @@ class _ItineraryLegState extends ConsumerState<ItineraryLeg> {
             PolylineLayer(polylines: [
               Polyline(
                 points: widget.leg.path.coordinates,
-                color: pathColor.withOpacity(0.7),
+                color: pathColor.withValues(alpha: 0.7),
                 strokeWidth: 7.0,
-                isDotted: pathDotted,
+                pattern: pathDotted ? StrokePattern.dotted() : StrokePattern.solid(),
               )
             ]),
             if (widget.leg is TransitRouteElement)

@@ -25,9 +25,9 @@ class RouteQueryOTPError implements Exception {
   RouteQueryOTPError(this.message, [this.uri]);
 }
 
-class StopNotFoundError extends Error {}
+class StopNotFoundError implements Exception {}
 
-class RouteNotFoundError extends Error {}
+class RouteNotFoundError implements Exception {}
 
 class PatternData {
   Path geometry;
