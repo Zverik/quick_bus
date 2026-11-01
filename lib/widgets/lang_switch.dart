@@ -4,9 +4,9 @@ import 'package:quick_bus/providers/language.dart';
 
 class LangSwitchButton extends ConsumerWidget {
   static const kFlags = <String, String>{
-    'en': '🇬🇧',
-    'et': '🇪🇪',
-    'ru': '🇷🇺',
+    'en': 'en',
+    'et': 'et',
+    'ru': 'ru',
   };
   static const kUnknownFlag = '🌐';
 
@@ -19,9 +19,16 @@ class LangSwitchButton extends ConsumerWidget {
             .languageCode;
     return TextButton(
       style: ButtonStyle(visualDensity: VisualDensity.compact),
-      child: Text(
-        !kFlags.containsKey(lang) ? kUnknownFlag : kFlags[lang]!,
-        style: TextStyle(fontSize: 24.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5.0),
+          border: BoxBorder.all(color: Colors.white.withValues(alpha: 0.5)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 5.0),
+        child: Text(
+          !kFlags.containsKey(lang) ? kUnknownFlag : kFlags[lang]!,
+          style: TextStyle(fontSize: 24.0, color: Colors.white),
+        ),
       ),
       onPressed: () {
         final idx = kSupportedLocales.indexed

@@ -26,7 +26,7 @@ class AppLocalizationsEt extends AppLocalizations {
   String get search => 'Otsing';
 
   @override
-  String get chooseOnMap => 'Valida kaardil...';
+  String get chooseOnMap => 'Valige kaardilt...';
 
   @override
   String get showMap => 'Kaart';
@@ -88,7 +88,7 @@ class AppLocalizationsEt extends AppLocalizations {
   String get storePlan => 'Salvesta marsruut';
 
   @override
-  String get restorePlan => 'Marsruut salvestatud';
+  String get restorePlan => 'Marsruut on salvestatud';
 
   @override
   String busLeavesFrom(String bus, DateTime time, String stop) {
@@ -100,7 +100,7 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String walkMeters(Object distance, String destination) {
-    return 'Jalutage ${distance}m <b>$destination</b> (kollane ring).';
+    return 'Jalutage ${distance}m <b>$destination</b> (kollane punkt).';
   }
 
   @override
